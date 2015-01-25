@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Archives: 2014 | H.Tanaka&#39;s Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description">
+<meta property="og:type" content="website">
+<meta property="og:title" content="H.Tanaka's Blog">
+<meta property="og:url" content="http://tanakahx.github.io/archives/2014/page/2/">
+<meta property="og:site_name" content="H.Tanaka's Blog">
+<meta property="og:description">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="H.Tanaka's Blog">
+<meta name="twitter:description">
+
+  
+    <link rel="alternative" href="/atom.xml" title="H.Tanaka&#39;s Blog" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+  
+  <link href="//fonts.googleapis.com/css?family=Inconsolata:400,700|Open+Sans:700,400" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+
+  
+
+</head>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <div id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <div id="header-title">
+        <h1 id="logo-wrap">
+          <a href="/" id="logo">H.Tanaka&#39;s Blog
+          
+              <span id="subtitle">Tech notes on software development</span>
+          
+          </a>
+        </h1>
+      </div>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><input type="submit" value="&#xF002;" class="search-form-submit"><input type="hidden" name="q" value="site:http://tanakahx.github.io"></form>
+      </div>
+    </div>
+  </div>
+</div>
+      <div class="outer">
+        <section id="main">
+  
+    <article id="post-initial-git-source-code" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2014/06/08/initial-git-source-code/" class="article-date">
+  <time datetime="2014-06-08T07:38:46.000Z" itemprop="datePublished">Jun 8 2014</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2014/06/08/initial-git-source-code/">初期の Git コマンドのソースコード</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Linus さんによる Git の最初のコミットとなる e83c5163 のソースコードを読んでみた。</p>
+<h2 id="init-db">init-db</h2>
+<p>.dircache という名前でディレクトリを作成し、その中に 00 ~ FF のディレクトリを作成する。Git はこのディレクトリをコンテンツ管理用の DB として扱い、ファイルのコンテンツから求めた SHA-1 ハッシュ値をファイル名としてこのディレクトリに保存する。保存するディレクトリは SHA-1 ハッシュ値の先頭 1 バイトから保存すべき 00 ~ FF のディレクトリを識別し、そのディレクトリの中に SHA-1 ハッシュ値の残りの 19 バイトからなるファイル名で保存する。このようにインデクシングする理由は、.dircache はそれが置かれているディレクトリ以下のすべてのファイルを管理するため、ファイル数が多くなった場合に対処しているのだろう (という予想)。</p>
+<p>データの基本的なフォーマットは以下の通り。</p>
+<ul>
+<li>blob データサイズ\0データ</li>
+<li>tree データサイズ\0データ</li>
+<li>commit データサイズ\0データ</li>
+</ul>
+<p>“データ” の部分はそれぞれの形式毎に変わる。</p>
+<h2 id="update-cache">update-cache</h2>
+<p>指定したファイルを <code>blob データサイズ\0データ</code> という形式に変換し、それを zlib で deflate した結果を .dircache/objects 以下の DB に保存する。このときのファイル名は deflate 後の結果から SHA-1 ハッシュ値を求めたものになる。</p>
+<p>さらに、登録するファイル情報を .dircache/index にキャッシュエントリとして保存する。.dirchache/index の構造は単純で、1 つのキャッシュヘッダとそれに続くキャッシュエントリのリストから構成される。キャッシュエントリは fstat から求めたファイル情報と deflate 結果から求めた SHA-1 ハッシュ値を含んでおり、ファイル名でソートされている。また、キャッシュヘッダにもすべてのキャッシュエントリのリストから算出した SHA-1 ハッシュ値を保存する。</p>
+<h2 id="write-tree">write-tree</h2>
+<p>キャッシュエントリを走査し、<code>tree データサイズ\0ファイルモード ファイル名\0SHA-1...</code> という形式のデータを生成する。update-cache でファイルを blob 形式で DB に保存したのと同様に、この tree 形式を zlib で deflate して、その結果から求めた SHA-1 ハッシュ値をファイル名として DB に保存する。このときのハッシュ値は commit-tree で使う。</p>
+<h2 id="commit-tree">commit-tree</h2>
+<p>引数で指定した SHA-1 ハッシュ値の tree を commit する。コミットメッセージは標準入力から取得する。形式は以下の通り。</p>
+<p><code>commit データサイズ\0tree SHA-1\nparent SHA-1\nauthor 本名 &lt;ユーザ名@email&gt; 日時\ncommitter 本名 &lt;ユーザ名@email&gt; 日時\n\nコミットメッセージ</code></p>
+<p>write-tree と同様に上記のデータを zlib で deflate して SHA-1 ハッシュ値からなるファイル名で DB に登録する。-p で親となる tree を指定することができ、通常は前回 commit したときの tree の SHA-1 ハッシュ値を指定する(初回 commit 時は指定しない)。この tree を逆順にたどっていくことにより履歴を巡ることが可能。</p>
+<h2 id="cat-file">cat-file</h2>
+<p>DB に保存されているデータはすべて zlib で deflate されているためそのままでは読めない。cat-tree はこれを読める形式に変換するコマンドで、引数に指定した SHA-1 ハッシュ値の DB ファイルを inflate して一時ファイル (temp_git_file_XXXXXX) に書き出す。</p>
+<h2 id="read-tree">read-tree</h2>
+<p>blob と commit 形式のファイルは cat-file で inflate すれば読めるが、tree 形式は SHA-1 ハッシュ値がバイナリ形式で含まれるためそのままでは読めない。read-tree は tree 形式のファイルをテキストとして読める形に変換して一時ファイルに書き出す。</p>
+<h2 id="show-diff">show-diff</h2>
+<p>.dircache/index で管理しているすべてのキャッシュエントリについて、DB 内のファイルと現在のファイルの stat 情報に差分があれば diff を表示する。</p>
+<h2 id="使い方">使い方</h2>
+<figure class="highlight console"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="variable">$ </span>git clone github.com/gitster/git.git</div><div class="line"><span class="variable">$ </span>git checkout e83c5163</div></pre></td></tr></table></figure>
+
+<p>そのままでは make できなかったので以下のパッチをあてる。</p>
+<script src="https://gist.github.com/2121b1aa0926098539a6.js"></script>
+
+<p>次の実行例は DB を作成して README と Makefile を tree に登録して commit するまでの例。</p>
+<figure class="highlight console"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">$ ./init-db</div><div class="line">defaulting to private storage area</div><div class="line">$ ./<span class="operator"><span class="keyword">update</span>-<span class="keyword">cache</span> README</span></div><div class="line">$ ./<span class="keyword">update</span>-<span class="keyword">cache</span> Makefile</div><div class="line">$ find .dircache -type f</div><div class="line">.dircache/<span class="keyword">index</span></div><div class="line">.dircache/objects/<span class="number">66</span>/<span class="number">5025</span>b11ce8fb16fadb7daebf77cb54a2ae39a1</div><div class="line">.dircache/objects/<span class="number">90</span>/<span class="number">9</span>a87257113dd11a2c2749c059b4aa6d55ed9f7</div><div class="line">$ ./<span class="keyword">write</span>-tree</div><div class="line"><span class="number">8</span>f4d3dbaec34d144bfcf5a8f2d7e0573abc00230</div><div class="line">$ ./<span class="keyword">commit</span>-tree <span class="number">8</span>f4d3dbaec34d144bfcf5a8f2d7e0573abc00230</div><div class="line">Committing initial tree <span class="number">8</span>f4d3dbaec34d144bfcf5a8f2d7e0573abc00230</div><div class="line"><span class="keyword">first</span> <span class="keyword">commit</span></div><div class="line"><span class="number">1</span>f3b88e43904b187069aa7a8b6ff8006743969c9</div><div class="line">$ ./<span class="keyword">read</span>-tree <span class="number">8</span>f4d3dbaec34d144bfcf5a8f2d7e0573abc00230</div><div class="line"><span class="number">100644</span> Makefile (<span class="number">909</span>a87257113dd11a2c2749c059b4aa6d55ed9f7)</div><div class="line"><span class="number">100644</span> README (<span class="number">665025</span>b11ce8fb16fadb7daebf77cb54a2ae39a1)</div><div class="line">$ ./cat-file <span class="number">665025</span>b11ce8fb16fadb7daebf77cb54a2ae39a1</div><div class="line">temp_git_file_OfINdU: <span class="built_in">blob</span></div><div class="line">$ head temp_git_file_OfINdU</div><div class="line"></div><div class="line">	GIT - the stupid content tracker</div><div class="line"></div><div class="line"><span class="string">"git"</span> can mean anything, depending <span class="keyword">on</span> your mood.</div><div class="line"></div><div class="line"> - random three-letter combination that <span class="keyword">is</span> pronounceable, <span class="keyword">and</span> <span class="keyword">not</span></div><div class="line">   actually used <span class="keyword">by</span> <span class="keyword">any</span> common UNIX command.  The fact that it <span class="keyword">is</span> a</div><div class="line">   mispronounciation <span class="keyword">of</span> <span class="string">"get"</span> may <span class="keyword">or</span> may <span class="keyword">not</span> be relevant.</div><div class="line"> - stupid. contemptible <span class="keyword">and</span> despicable. simple. Take your pick <span class="keyword">from</span> the</div><div class="line">   dictionary <span class="keyword">of</span> slang.</div></pre></td></tr></table></figure>
+
+<p>Git コマンドの使い方は以下の記事が参考にさせていただきました。</p>
+<ul>
+<li><a href="http://d.hatena.ne.jp/n314/20130905/1378383066" target="_blank" rel="external">gitのソースコードを読む</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://tanakahx.github.io/blog/2014/06/08/initial-git-source-code/" data-id="yj3s2r3xoz927cgn" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Git/">Git</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-git-create-new-branch-without-logs" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2014/06/07/git-create-new-branch-without-logs/" class="article-date">
+  <time datetime="2014-06-07T06:06:33.000Z" itemprop="datePublished">Jun 7 2014</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2014/06/07/git-create-new-branch-without-logs/">Git の履歴を削除して新しいブランチを作成する方法</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Git の履歴をすべて削除して新しいブランチからリポジトリ管理を始めたい場合、まずは以下のように git checkout コマンドに —orphan オプションをつけて空のブランチを作成する。</p>
+<figure class="highlight console"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="comment">$</span> <span class="comment">git</span> <span class="comment">checkout</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">orphan</span> <span class="comment">tmp</span></div></pre></td></tr></table></figure>
+
+<p>この状態で、いつものように Git 管理下におきたいファイルをステージングして commit する。何も commit していない状態だと git branch を実行しても tmp ブランチは表示されないようだ。</p>
+<figure class="highlight console"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="variable">$ </span>git add .</div><div class="line"><span class="variable">$ </span>git commit -m <span class="string">"first commmit"</span></div></pre></td></tr></table></figure>
+
+<p>この時点で master と履歴が 1 つの tmp というブランチが存在することになる。あとは master ブランチを tmp ブランチで push して履歴をすべて削除した master ブランチに改変する。</p>
+<figure class="highlight console"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ push <span class="operator">-f</span> . tmp:master</div></pre></td></tr></table></figure>
+
+<h2 id="別のリモートリポジトリに_push">別のリモートリポジトリに push</h2>
+<p>GitHub から clone したリポジトリを履歴を削除した上で BitBucket で新たに管理を開始したい場合などは、まず上記の手順で履歴を削除したリポジトリを作成した後、以下のように origin の url を変更する。</p>
+<figure class="highlight console"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="variable">$ </span>git checkout master <span class="comment"># カレントブランチを master ブランチに戻す</span></div><div class="line"><span class="variable">$ </span>git remote set_url origin git<span class="variable">@bitbecket</span>.<span class="symbol">com:</span>username/repository.git</div></pre></td></tr></table></figure>
+
+<p>あとはリモートリポジトリに対して push すればよい。</p>
+<figure class="highlight console"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="variable">$ </span>git push origin master</div></pre></td></tr></table></figure>
+
+<p>最初に作成した orphan なリポジトリはもはや不要なので削除してよい。</p>
+<figure class="highlight console"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ git branch <span class="operator">-d</span> tmp</div></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://tanakahx.github.io/blog/2014/06/07/git-create-new-branch-without-logs/" data-id="l2j64mny1wqan6zf" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Git/">Git</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-hello-world-with-atom-shell" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2014/06/02/hello-world-with-atom-shell/" class="article-date">
+  <time datetime="2014-06-02T14:24:57.000Z" itemprop="datePublished">Jun 2 2014</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2014/06/02/hello-world-with-atom-shell/">Atom Shell で Hello world</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Atom Shell を使っておそらく本来の使われ方ではないプログラムを作成してみる。以下のような Node.js プログラムを普通に実行することができる模様。</p>
+<figure class="highlight js"><figcaption><span>hello.js</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">console</span>.log(<span class="string">"hello, world"</span>);</div><div class="line">process.exit(<span class="number">0</span>);</div></pre></td></tr></table></figure>
+
+<p>最後の process.exit(0) を書かないとプロセスが終了しない。 実行するときは引数に JavaScript ファイルを指定すればよい。</p>
+<figure class="highlight console"><figcaption><span>実行結果</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ .<span class="regexp">/out/</span>Release<span class="regexp">/Atom.app/</span>Contents<span class="regexp">/MacOS/</span>Atom hello.js</div><div class="line">hello, world</div></pre></td></tr></table></figure>
+
+<p>require でロードしたモジュールも普通に使うことができる。</p>
+<figure class="highlight js"><figcaption><span>cpus.js</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> os = <span class="built_in">require</span>(<span class="string">'os'</span>);</div><div class="line"><span class="built_in">console</span>.log(os.cpus());</div><div class="line">process.exit(<span class="number">0</span>);</div></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight console"><figcaption><span>実行結果</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">$ .<span class="regexp">/out/</span>Release<span class="regexp">/Atom.app/</span>Contents<span class="regexp">/MacOS/</span>Atom cpus.js</div><div class="line">[ { model: <span class="string">'Intel(R) Core(TM) i5-3317U CPU @ 1.70GHz'</span>,</div><div class="line">    speed: <span class="number">1700</span>,</div><div class="line">    <span class="keyword">times</span>: { user: <span class="number">4692350</span>, nice: <span class="number">0</span>, sys: <span class="number">3321620</span>, idle: <span class="number">38701300</span>, irq: <span class="number">0</span> } },</div><div class="line">  { model: <span class="string">'Intel(R) Core(TM) i5-3317U CPU @ 1.70GHz'</span>,</div><div class="line">    speed: <span class="number">1700</span>,</div><div class="line">    <span class="keyword">times</span>: { user: <span class="number">2480960</span>, nice: <span class="number">0</span>, sys: <span class="number">1154690</span>, idle: <span class="number">43077500</span>, irq: <span class="number">0</span> } },</div><div class="line">  { model: <span class="string">'Intel(R) Core(TM) i5-3317U CPU @ 1.70GHz'</span>,</div><div class="line">    speed: <span class="number">1700</span>,</div><div class="line">    <span class="keyword">times</span>: { user: <span class="number">4196740</span>, nice: <span class="number">0</span>, sys: <span class="number">2200760</span>, idle: <span class="number">40315740</span>, irq: <span class="number">0</span> } },</div><div class="line">  { model: <span class="string">'Intel(R) Core(TM) i5-3317U CPU @ 1.70GHz'</span>,</div><div class="line">    speed: <span class="number">1700</span>,</div><div class="line">    <span class="keyword">times</span>: { user: <span class="number">2333780</span>, nice: <span class="number">0</span>, sys: <span class="number">1036880</span>, idle: <span class="number">43342400</span>, irq: <span class="number">0</span> } } ]</div></pre></td></tr></table></figure>
+
+<p>本来のデスクトップアプリケーションを目的としたプログラムのチュートリアルは下記ドキュメントにある。</p>
+<ul>
+<li><a href="https://github.com/atom/atom-shell/blob/master/docs/tutorial/quick-start.md" target="_blank" rel="external">Quick start</a></li>
+</ul>
+<p>ちょっと試してみたけど、main.js から HTML の DOM を操作することはできないんだろうか。よくわからない…。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://tanakahx.github.io/blog/2014/06/02/hello-world-with-atom-shell/" data-id="gptolwb7d5fa590l" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JavaScript/">JavaScript</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-how-to-build-atom-shell" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2014/05/26/how-to-build-atom-shell/" class="article-date">
+  <time datetime="2014-05-26T14:54:50.000Z" itemprop="datePublished">May 26 2014</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2014/05/26/how-to-build-atom-shell/">Atom Shell をビルドする</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>GitHub が最近オープンソースで公開した <a href="https://atom.io" target="_blank" rel="external">Atom</a> というエディタが話題になっているが、それに使われているフレームワークが <a href="https://github.com/atom/atom-shell" target="_blank" rel="external">Atom Shell</a> というものらしい。GitHub の README.md によると JavaScript や HTML や CSS といった Web テクノロジでクロスプラットフォームなデスクトップアプリケーションが作れるフレームワークなのだそうだ。以前から Microsoft Windows でも HTA (HTML Application) という HTML + JScript/VBScript でデスクトップアプリケーションが作れる技術があったが、あのノリなのかもしれない。もっとも HTA は Internet Explorer 限定だったけど。</p>
+<p>試しにソースコードを clone してビルドしてみる。とはいっても<a href="https://github.com/atom/atom-shell/tree/master/docs" target="_blank" rel="external">ドキュメント</a>の通りに進めるだけだった。まずはソースツリーを clone する。</p>
+<figure class="highlight console"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ git clone http<span class="variable">s:</span>//github.<span class="keyword">com</span>/atom/atom-<span class="keyword">shell</span>.git</div><div class="line">$ <span class="keyword">cd</span> atom-<span class="keyword">shell</span></div></pre></td></tr></table></figure>
+
+<p>ビルドに必要なものはすべて bootstrap.py を実行することでそろえてくれるようだ。</p>
+<figure class="highlight console"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ ./script/bootstrap.<span class="keyword">py</span></div></pre></td></tr></table></figure>
+
+<p>あとは build.py を実行するだけ。</p>
+<figure class="highlight console"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ ./script/build.<span class="keyword">py</span></div></pre></td></tr></table></figure>
+
+<p>最後に test.py を実行して完了！</p>
+<figure class="highlight console"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ <span class="keyword">cd</span> ./script/test.<span class="keyword">py</span></div></pre></td></tr></table></figure>
+
+<p>out/Release/Atom.app/Contents/MacOS/Atom に実行ファイルが生成される。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://tanakahx.github.io/blog/2014/05/26/how-to-build-atom-shell/" data-id="mf0nwdqn4la6vl5m" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JavaScript/">JavaScript</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-open-and-read-in-python" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2014/05/20/open-and-read-in-python/" class="article-date">
+  <time datetime="2014-05-20T14:30:42.000Z" itemprop="datePublished">May 20 2014</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2014/05/20/open-and-read-in-python/">Python でファイルを読むとき</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Python でファイルを読むときはいつも</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">f = open(<span class="string">"file.txt"</span>)</div><div class="line">line = f.readline()</div><div class="line"><span class="keyword">while</span> line:</div><div class="line">    <span class="keyword">print</span> line</div><div class="line">    line = f.readline()</div><div class="line">f.close()</div></pre></td></tr></table></figure>
+
+<p>のように書いていたけど、こんな書き方しなくても、</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">f = open(<span class="string">"file.txt"</span>)</div><div class="line"><span class="keyword">for</span> line <span class="keyword">in</span> f:</div><div class="line">    <span class="keyword">print</span> line</div><div class="line">f.close()</div></pre></td></tr></table></figure>
+
+<p>これでよかったんだ…。効率は良くないかもしれないけど、もっと短く書ける。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">for</span> line <span class="keyword">in</span> open(<span class="string">"file.txt"</span>):</div><div class="line">    <span class="keyword">print</span> line</div></pre></td></tr></table></figure>
+
+<p>でも Python 2.6 からは with 構文使うのがいいらしい。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">with</span> open(<span class="string">"file.txt"</span>) <span class="keyword">as</span> f:</div><div class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> f:</div><div class="line">        <span class="keyword">print</span> line</div></pre></td></tr></table></figure>
+
+<p>これなら with を抜けた後に自動的に f.close() されるようだ。まさに Lisp の with-open-file マクロだな。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://tanakahx.github.io/blog/2014/05/20/open-and-read-in-python/" data-id="9vn86652w26cs941" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Python/">Python</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-fibonacci-sequence" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2014/05/19/fibonacci-sequence/" class="article-date">
+  <time datetime="2014-05-19T13:26:09.000Z" itemprop="datePublished">May 19 2014</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2014/05/19/fibonacci-sequence/">フィボナッチ数列</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>なんとなくフィボナッチ数列を計算したくなった。素朴な実装だとどのくらい遅いのかというと。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="preprocessor">#<span class="keyword">include</span> &lt;stdio.h&gt;</span></div><div class="line"><span class="preprocessor">#<span class="keyword">include</span> &lt;stdlib.h&gt;</span></div><div class="line"></div><div class="line"><span class="keyword">int</span> fib(<span class="keyword">int</span> n)</div><div class="line">{</div><div class="line">	<span class="keyword">if</span> (n == <span class="number">0</span>) {</div><div class="line">		<span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">	}</div><div class="line">	<span class="keyword">else</span> <span class="keyword">if</span> (n == <span class="number">1</span>) {</div><div class="line">		<span class="keyword">return</span> <span class="number">1</span>;</div><div class="line">	}</div><div class="line">	<span class="keyword">else</span> {</div><div class="line">		<span class="keyword">return</span> fib(n-<span class="number">1</span>) + fib(n-<span class="number">2</span>);</div><div class="line">	}</div><div class="line">}</div><div class="line"></div><div class="line"><span class="keyword">int</span> main(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</div><div class="line">{</div><div class="line">	<span class="keyword">int</span> n = strtol(argv[<span class="number">1</span>], NULL, <span class="number">10</span>);</div><div class="line">	<span class="built_in">printf</span>(<span class="string">"%d\n"</span>, fib(n));</div><div class="line">	<span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">}</div></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight console"><figcaption><span>実行結果</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">time</span> ./<span class="operator">a</span>.out <span class="number">45</span></div><div class="line"><span class="number">1134903170</span></div><div class="line">./<span class="operator">a</span>.out <span class="number">45</span>  <span class="number">14.84</span>s user <span class="number">0.02</span>s <span class="keyword">system</span> <span class="number">99</span>% cpu <span class="number">14.916</span> total</div></pre></td></tr></table></figure>
+
+<p>フィボナッチ数列は fib(n) と fib(n-1) の和からなっており、1 だけ異なる引数で二手に分かれて再帰していくので、何度も同じ計算を繰り返すはめになる。したがって、与えられた n に対して計算した結果をキャッシュ(メモ)しておいて、再び同じ n が与えられたらキャッシュから返すようにすれば高速化が望める。これをメモ化という。メモするための記憶領域は別途必要になるが、実行速度の向上はそのオーバーヘッドを遥かに上回る。確か最初は SICP の本か何かで読んだ気がするがだいぶ忘れてて、記憶を頼りに書こうとしたが結局ググってしまったことは内緒。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"><span class="preprocessor">#<span class="keyword">include</span> &lt;stdio.h&gt;</span></div><div class="line"><span class="preprocessor">#<span class="keyword">include</span> &lt;stdlib.h&gt;</span></div><div class="line"></div><div class="line"><span class="keyword">int</span> memo[<span class="number">100</span>];</div><div class="line"></div><div class="line"><span class="keyword">int</span> fib(<span class="keyword">int</span> n)</div><div class="line">{</div><div class="line">	<span class="keyword">if</span> (memo[n]) {</div><div class="line">		<span class="keyword">return</span> memo[n];</div><div class="line">	}</div><div class="line">	<span class="keyword">else</span> <span class="keyword">if</span> (n == <span class="number">0</span>) {</div><div class="line">		<span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">	}</div><div class="line">	<span class="keyword">else</span> <span class="keyword">if</span> (n == <span class="number">1</span>) {</div><div class="line">		<span class="keyword">return</span> (memo[n] = <span class="number">1</span>);</div><div class="line">	}</div><div class="line">	<span class="keyword">else</span> {</div><div class="line">		<span class="keyword">return</span> (memo[n] = fib(n-<span class="number">1</span>) + fib(n-<span class="number">2</span>));</div><div class="line">	}</div><div class="line">}</div><div class="line"></div><div class="line"><span class="keyword">int</span> main(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</div><div class="line">{</div><div class="line">	<span class="keyword">int</span> n = strtol(argv[<span class="number">1</span>], NULL, <span class="number">10</span>);</div><div class="line">	<span class="built_in">printf</span>(<span class="string">"%d\n"</span>, fib(n));</div><div class="line">	<span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>お遊びなのでコードは適当に書いてます。実行速度は先ほどとは歴然の差。</p>
+<figure class="highlight console"><figcaption><span>実行結果</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">time</span> ./<span class="operator">a</span>.out <span class="number">45</span></div><div class="line"><span class="number">1134903170</span></div><div class="line">./<span class="operator">a</span>.out <span class="number">45</span>  <span class="number">0.00</span>s user <span class="number">0.00</span>s <span class="keyword">system</span> <span class="number">38</span>% cpu <span class="number">0.006</span> total</div></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://tanakahx.github.io/blog/2014/05/19/fibonacci-sequence/" data-id="xxrplttmsjjcioy2" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-map-function-in-lisp" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2014/05/18/map-function-in-lisp/" class="article-date">
+  <time datetime="2014-05-17T15:51:57.000Z" itemprop="datePublished">May 18 2014</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2014/05/18/map-function-in-lisp/">Lisp の map 関数</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Lisp にはリスト操作の map* 関数が 6 種類あるが違いが微妙なのでまとめてみた。まずは基本形の mapcar/maplist を押さえておけばいい感じ。</p>
+<h2 id="mapcar/maplist">mapcar/maplist</h2>
+<p>mapcar は引数にとったリストを構成する各コンスセルの car 部に対して関数を適用し、その結果をリストとして返す。</p>
+<figure class="highlight cl"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="list">(<span class="title">mapcar</span> #'<span class="list">(<span class="title">lambda</span> <span class="list">(<span class="title">x</span>)</span> <span class="list">(<span class="title"><span class="built_in">*</span></span> x<span class="number"> 2</span>)</span>)</span> '<span class="list">(<span class="title">1</span><span class="number"> 2</span><span class="number"> 3</span>)</span>)</span></div><div class="line"><span class="comment">;; =&gt; (2 4 6)</span></div><div class="line"></div><div class="line"><span class="list">(<span class="title">mapcar</span> #'+ '<span class="list">(<span class="title">1</span><span class="number"> 2</span><span class="number"> 3</span>)</span> '<span class="list">(<span class="title">4</span><span class="number"> 5</span><span class="number"> 6</span>)</span>)</span></div><div class="line"><span class="comment">;; =&gt; (5 7 9)</span></div></pre></td></tr></table></figure>
+
+<p>maplist は引数にとったリストを構成する各コンスセルの cdr 部に対して関数を適用し、その結果をリストとして返す。</p>
+<figure class="highlight cl"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="list">(<span class="title">maplist</span> #<span class="quoted">'list</span> <span class="quoted">'(<span class="number">1</span> <span class="number">2</span> <span class="number">3</span>)</span>)</span></div><div class="line"><span class="comment">;; =&gt; (((1 2 3)) ((2 3)) ((3)))</span></div><div class="line"></div><div class="line"><span class="list">(<span class="title">maplist</span> #<span class="quoted">'list</span> <span class="quoted">'(<span class="number">1</span> <span class="number">2</span> <span class="number">3</span>)</span> <span class="quoted">'(<span class="number">4</span> <span class="number">5</span> <span class="number">6</span>)</span>)</span></div><div class="line"><span class="comment">;; =&gt; (((1 2 3) (4 5 6)) ((2 3) (5 6)) ((3) (6)))</span></div></pre></td></tr></table></figure>
+
+<h2 id="mapcan/mapcon">mapcan/mapcon</h2>
+<p>mapcan は mapcar 同様に、引数にとったリストを構成する各コンスセルの car 部に対して関数を適用するが、その結果がリストであることを期待して nconc したものを返す。</p>
+<figure class="highlight cl"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="list">(<span class="title">mapcan</span> #<span class="quoted">'list</span> <span class="quoted">'(<span class="number">1</span> <span class="number">2</span> <span class="number">3</span>)</span>)</span></div><div class="line"><span class="comment">;; =&gt; (nconc '(1) '(2) '(3))</span></div><div class="line"><span class="comment">;; =&gt; (1 2 3)</span></div><div class="line"></div><div class="line"><span class="list">(<span class="title">mapcan</span> #<span class="quoted">'list</span> <span class="quoted">'(<span class="number">1</span> <span class="number">2</span> <span class="number">3</span>)</span> <span class="quoted">'(<span class="number">4</span> <span class="number">5</span> <span class="number">6</span>)</span>)</span></div><div class="line"><span class="comment">;; =&gt; (nconc '(1 4) '(2 5) '(3 6))</span></div><div class="line"><span class="comment">;; =&gt; (1 4 2 5 3 6)</span></div></pre></td></tr></table></figure>
+
+<p>mapcon は maplist 同様に、引数にとったリストを構成する各コンスセルの cdr 部に対して関数を適用するが、その結果がリストであることを期待して nconc したものを返す。</p>
+<figure class="highlight cl"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="list">(<span class="title">mapcon</span> #<span class="quoted">'list</span> <span class="quoted">'(<span class="number">1</span> <span class="number">2</span> <span class="number">3</span>)</span>)</span></div><div class="line"><span class="comment">;; =&gt; (nconc '(1 2 3) '(2 3) '(3))</span></div><div class="line"><span class="comment">;; =&gt; ((1 2 3) (2 3) (3))</span></div><div class="line"></div><div class="line"><span class="list">(<span class="title">mapcon</span> #<span class="quoted">'list</span> <span class="quoted">'(<span class="number">1</span> <span class="number">2</span> <span class="number">3</span>)</span> <span class="quoted">'(<span class="number">4</span> <span class="number">5</span> <span class="number">6</span>)</span>)</span></div><div class="line"><span class="comment">;; =&gt; (nconc '((1 2 3) (4 5 6)) '((2 3) (5 6)) '((3) (6)))</span></div><div class="line"><span class="comment">;; =&gt; ((1 2 3) (4 5 6) (2 3) (5 6) (3) (6))</span></div></pre></td></tr></table></figure>
+
+<h2 id="mapc/mapl">mapc/mapl</h2>
+<p>mapc/mapl のリスト処理は mapcar/maplist と同様であるが、戻り値は一番目に与えたリストを返すという点で異なる。</p>
+<figure class="highlight cl"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="list">(<span class="title">mapc</span> #'<span class="list">(<span class="title">lambda</span> <span class="list">(<span class="title">x</span>)</span> <span class="list">(<span class="title"><span class="built_in">format</span></span> t <span class="string">"This is ~a~%"</span> x)</span>)</span> '<span class="list">(<span class="title">1</span><span class="number"> 2</span><span class="number"> 3</span>)</span>)</span></div><div class="line"><span class="comment">;; This is 1</span></div><div class="line"><span class="comment">;; This is 2</span></div><div class="line"><span class="comment">;; This is 3</span></div><div class="line"><span class="comment">;; =&gt; (1 2 3)</span></div><div class="line"><span class="list">(<span class="title">mapc</span> #'<span class="list">(<span class="title">lambda</span> <span class="list">(<span class="title">x</span> y)</span> <span class="list">(<span class="title"><span class="built_in">format</span></span> t <span class="string">"~a + ~a = ~a ~%"</span> x y <span class="list">(<span class="title"><span class="built_in">+</span></span> x y)</span>)</span>)</span> '<span class="list">(<span class="title">1</span><span class="number"> 2</span><span class="number"> 3</span>)</span> '<span class="list">(<span class="title">4</span><span class="number"> 5</span><span class="number"> 6</span>)</span>)</span></div><div class="line"><span class="comment">;; 1 + 4 = 5</span></div><div class="line"><span class="comment">;; 2 + 5 = 7</span></div><div class="line"><span class="comment">;; 3 + 6 = 9</span></div><div class="line"><span class="comment">;; =&gt; (1 2 3)</span></div><div class="line"></div><div class="line"><span class="list">(<span class="title">mapl</span> #'<span class="list">(<span class="title">lambda</span> <span class="list">(<span class="title">x</span>)</span> <span class="list">(<span class="title"><span class="built_in">format</span></span> t <span class="string">"This is ~a~%"</span> x)</span>)</span> '<span class="list">(<span class="title">1</span><span class="number"> 2</span><span class="number"> 3</span>)</span>)</span></div><div class="line"><span class="comment">;; This is (1 2 3)</span></div><div class="line"><span class="comment">;; This is (2 3)</span></div><div class="line"><span class="comment">;; This is (3)</span></div><div class="line"><span class="comment">;; =&gt; (1 2 3)</span></div><div class="line"><span class="list">(<span class="title">mapl</span> #'<span class="list">(<span class="title">lambda</span> <span class="list">(<span class="title">x</span> y)</span> <span class="list">(<span class="title"><span class="built_in">format</span></span> t <span class="string">"append ~a and ~a =&gt; ~a~%"</span> x y <span class="list">(<span class="title">append</span> x y)</span>)</span>)</span> '<span class="list">(<span class="title">1</span><span class="number"> 2</span><span class="number"> 3</span>)</span> '<span class="list">(<span class="title">4</span><span class="number"> 5</span><span class="number"> 6</span>)</span>)</span></div><div class="line"><span class="comment">;; append (1 2 3) and (4 5 6) =&gt; (1 2 3 4 5 6)</span></div><div class="line"><span class="comment">;; append (2 3) and (5 6) =&gt; (2 3 5 6)</span></div><div class="line"><span class="comment">;; append (3) and (6) =&gt; (3 6)</span></div><div class="line"><span class="comment">;; =&gt; (1 2 3)</span></div></pre></td></tr></table></figure>
+
+<h2 id="map/mapinto_(おまけ)">map/mapinto (おまけ)</h2>
+<p>map は一般的なシーケンス型に適用できる mapcar の汎用版。</p>
+<figure class="highlight cl"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="list">(<span class="title">map</span> <span class="quoted">'vector</span> #<span class="quoted">'+</span> #<span class="list">(<span class="number">1</span> <span class="number">2</span> <span class="number">3</span>)</span> #<span class="list">(<span class="number">4</span> <span class="number">5</span> <span class="number">6</span>)</span>)</span></div><div class="line"><span class="comment">;; =&gt; #(5 7 9)</span></div><div class="line"><span class="list">(<span class="title">map</span> <span class="quoted">'list</span> #<span class="quoted">'+</span> <span class="quoted">'(<span class="number">1</span> <span class="number">2</span> <span class="number">3</span>)</span> <span class="quoted">'(<span class="number">4</span> <span class="number">5</span> <span class="number">6</span>)</span>)</span></div><div class="line"><span class="comment">;; =&gt; (5 7 9)</span></div></pre></td></tr></table></figure>
+
+<p>mapinto は mapcar の結果を第一引数に指定した変数に割り当てる。</p>
+<figure class="highlight cl"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">(map-<span class="keyword">into</span> <span class="operator">a</span> <span class="comment">#'+ '(1 2 3) '(4 5 6))</span></div><div class="line">;; =&gt; (<span class="number">5</span> <span class="number">7</span> <span class="number">9</span>)</div><div class="line"><span class="operator">a</span></div><div class="line">;; =&gt; (<span class="number">5</span> <span class="number">7</span> <span class="number">9</span>)</div></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://tanakahx.github.io/blog/2014/05/18/map-function-in-lisp/" data-id="ry40717kxa607kh5" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Lisp/">Lisp</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-the-art-of-readable-code" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2014/05/17/the-art-of-readable-code/" class="article-date">
+  <time datetime="2014-05-17T13:46:56.000Z" itemprop="datePublished">May 17 2014</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2014/05/17/the-art-of-readable-code/">リーダブルコード</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>だいぶいまさら間が否めないが巷で噂のリーダブルコードを読んだ。いかにしてわかりやすいコードを書くかという点に関して豊富な具体例とともにわかりやすく解説している良書だった。まあコードコンプリートにも書かれている内容だが。ちゃんとコメント書かないと…。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://tanakahx.github.io/blog/2014/05/17/the-art-of-readable-code/" data-id="hj935w2zrxms9bml" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-update-octopress-post" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2014/05/16/update-octopress-post/" class="article-date">
+  <time datetime="2014-05-16T14:53:58.000Z" itemprop="datePublished">May 16 2014</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2014/05/16/update-octopress-post/">Octopress の記事の日付を更新するスクリプト</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Octopress で rake new_post して新しい記事を作成すると、作成日がファイル名になり、ファイル中の date: にも作成した時点の日時が記録される。この日付は作成日ではなくどちらかというと deploy する日にしたいので、指定したファイル名とファイル中の date: を最新に更新するスクリプトを書いた。(SBCL 用)</p>
+<script src="https://gist.github.com/e98f96e8b2f7673ce741.js"></script>
+
+<p>実行方法は以下の通り。</p>
+<figure class="highlight console"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sbcl --script <span class="keyword">update</span>-md.lisp <span class="number">2014</span>-<span class="number">05</span>-<span class="number">14</span>-hoge.markdown</div></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://tanakahx.github.io/blog/2014/05/16/update-octopress-post/" data-id="e3i64splyq1ncf8r" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Lisp/">Lisp</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-safe-fifo" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2014/05/15/safe-fifo/" class="article-date">
+  <time datetime="2014-05-14T15:51:56.000Z" itemprop="datePublished">May 15 2014</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2014/05/15/safe-fifo/">安全な FIFO の作り方</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>固定長配列を使って安全な FIFO を実現するときにちょっと便利な方法を思いついたのでメモしておく。次のようなシンプルな FIFO があるとする。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Fifo</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, size)</span>:</span></div><div class="line">        self.fifo = [<span class="number">0</span>]*size</div><div class="line">        self.wp = <span class="number">0</span></div><div class="line">        self.rp = <span class="number">0</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">push</span><span class="params">(self, obj)</span>:</span></div><div class="line">        self.fifo[self.wp] = obj</div><div class="line">        self.wp += <span class="number">1</span></div><div class="line">        <span class="keyword">if</span> self.wp == len(self.fifo):</div><div class="line">            self.wp = <span class="number">0</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">pop</span><span class="params">(self)</span>:</span></div><div class="line">        r = self.fifo[self.rp]</div><div class="line">        self.rp += <span class="number">1</span></div><div class="line">        <span class="keyword">if</span> self.rp == len(self.fifo):</div><div class="line">            self.rp = <span class="number">0</span></div><div class="line">        <span class="keyword">return</span> r</div></pre></td></tr></table></figure>
+
+<p>push() で FIFO にデータを詰めて、pop() で先に push() したデータから取り出せる。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">print</span> <span class="string">"-------- Test1 --------"</span></div><div class="line">fifo = Fifo(<span class="number">8</span>)</div><div class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">4</span>):</div><div class="line">    fifo.push(i)</div><div class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">4</span>):</div><div class="line">    <span class="keyword">print</span> fifo.pop(),</div><div class="line"><span class="keyword">print</span></div><div class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">8</span>):</div><div class="line">    fifo.push(i)</div><div class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">8</span>):</div><div class="line">    <span class="keyword">print</span> fifo.pop(),</div><div class="line"><span class="keyword">print</span></div><div class="line"></div><div class="line"><span class="keyword">print</span> <span class="string">"-------- Test2 --------"</span></div><div class="line">fifo = Fifo(<span class="number">8</span>)</div><div class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">9</span>): <span class="comment"># ERROR! (Overwrite)</span></div><div class="line">    fifo.push(i)</div><div class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">8</span>):</div><div class="line">    <span class="keyword">print</span> fifo.pop(),</div><div class="line"><span class="keyword">print</span></div><div class="line"></div><div class="line"><span class="keyword">print</span> <span class="string">"-------- Test3 --------"</span></div><div class="line">fifo = Fifo(<span class="number">8</span>)</div><div class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">8</span>):</div><div class="line">    fifo.push(i)</div><div class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">9</span>): <span class="comment"># ERROR! (Overread)</span></div><div class="line">    <span class="keyword">print</span> fifo.pop(),</div><div class="line"><span class="keyword">print</span></div></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight console"><figcaption><span>実行結果</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span> <span class="comment">Test1</span> <span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span></div><div class="line"><span class="comment">0</span> <span class="comment">1</span> <span class="comment">2</span> <span class="comment">3</span></div><div class="line"><span class="comment">0</span> <span class="comment">1</span> <span class="comment">2</span> <span class="comment">3</span> <span class="comment">4</span> <span class="comment">5</span> <span class="comment">6</span> <span class="comment">7</span></div><div class="line"><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span> <span class="comment">Test2</span> <span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span></div><div class="line"><span class="comment">8</span> <span class="comment">1</span> <span class="comment">2</span> <span class="comment">3</span> <span class="comment">4</span> <span class="comment">5</span> <span class="comment">6</span> <span class="comment">7</span></div><div class="line"><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span> <span class="comment">Test3</span> <span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span></div><div class="line"><span class="comment">0</span> <span class="comment">1</span> <span class="comment">2</span> <span class="comment">3</span> <span class="comment">4</span> <span class="comment">5</span> <span class="comment">6</span> <span class="comment">7</span> <span class="comment">0</span></div></pre></td></tr></table></figure>
+
+<p>Test1 のように FIFO のバッファ容量をオーバーしない限り push() した通りに pop() されている。しかし、Test2 の場合はバッファ容量を超えて push() しているので、先に保存したデータを上書きしてしまっている。Test3 は逆に pop() が多すぎる場合で、データを保存していない場所からデータを読み取ってしまっている。</p>
+<p>そこで、データの上書きや読み過ぎを防ぐ SafeFifo というクラスを作りたい。単純にリードポインタとライトポインタを比較するコードを追加すればよいのだが、既存クラスに手を加えたくない場合や、テスト時のみチェック機構が備わっている Safe 版を使いたい場合がある。そこで次のような filled という配列を用意しておき、push() して書き込まれた場所に True を記録し、pop() して読み出された場所は False を記録しておく。上書き／読み過ぎを検出しているので、出力結果がおかしくなることはない。(ただし、当然ながらバッファ容量を超えて push() した分は破棄されてしまう。)</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">SafeFifo</span><span class="params">(Fifo)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, size)</span>:</span></div><div class="line">        Fifo.__init__(self, size)</div><div class="line">        self.filled = [<span class="keyword">False</span>]*size</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">safe_push</span><span class="params">(self, obj)</span>:</span></div><div class="line">        <span class="keyword">if</span> self.filled[self.wp] == <span class="keyword">False</span>:</div><div class="line">            self.filled[self.wp] = <span class="keyword">True</span></div><div class="line">            self.push(obj)</div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            <span class="keyword">raise</span> Exception(<span class="string">'Overwrite at %d'</span> % (self.wp))</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">safe_pop</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">if</span> self.filled[self.rp] == <span class="keyword">True</span>:</div><div class="line">            self.filled[self.rp] = <span class="keyword">False</span></div><div class="line">            <span class="keyword">return</span> self.pop()</div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            <span class="keyword">raise</span> Exception(<span class="string">'Overread at %d'</span> % (self.rp))</div></pre></td></tr></table></figure>
+
+<p>Fifo を SafeFifo に置き換えて例外処理を追加した使用例。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">print</span> <span class="string">"-------- Test1 --------"</span></div><div class="line">fifo = SafeFifo(<span class="number">8</span>)</div><div class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">4</span>):</div><div class="line">    fifo.safe_push(i)</div><div class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">4</span>):</div><div class="line">    <span class="keyword">print</span> fifo.safe_pop(),</div><div class="line"><span class="keyword">print</span></div><div class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">8</span>):</div><div class="line">    fifo.safe_push(i)</div><div class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">8</span>):</div><div class="line">    <span class="keyword">print</span> fifo.safe_pop(),</div><div class="line"><span class="keyword">print</span></div><div class="line"></div><div class="line"><span class="keyword">print</span> <span class="string">"-------- Test2 --------"</span></div><div class="line">fifo = SafeFifo(<span class="number">8</span>)</div><div class="line"><span class="keyword">try</span>:</div><div class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">9</span>): <span class="comment"># ERROR! (Overwrite)</span></div><div class="line">        fifo.safe_push(i)</div><div class="line"><span class="keyword">except</span> Exception, e:</div><div class="line">    <span class="keyword">print</span> e</div><div class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">8</span>):</div><div class="line">    <span class="keyword">print</span> fifo.safe_pop(),</div><div class="line"><span class="keyword">print</span></div><div class="line"></div><div class="line"><span class="keyword">print</span> <span class="string">"-------- Test3 --------"</span></div><div class="line">fifo = SafeFifo(<span class="number">8</span>)</div><div class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">8</span>):</div><div class="line">    fifo.safe_push(i)</div><div class="line"><span class="keyword">try</span>:</div><div class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">9</span>): <span class="comment"># ERROR! (Overread)</span></div><div class="line">        <span class="keyword">print</span> fifo.safe_pop(),</div><div class="line"><span class="keyword">except</span> Exception, e:</div><div class="line">    <span class="keyword">print</span> e</div><div class="line"><span class="keyword">print</span></div></pre></td></tr></table></figure>
+
+<p>実行結果は以下の通り。</p>
+<figure class="highlight console"><figcaption><span>実行結果</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span> <span class="comment">Test1</span> <span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span></div><div class="line"><span class="comment">0</span> <span class="comment">1</span> <span class="comment">2</span> <span class="comment">3</span></div><div class="line"><span class="comment">0</span> <span class="comment">1</span> <span class="comment">2</span> <span class="comment">3</span> <span class="comment">4</span> <span class="comment">5</span> <span class="comment">6</span> <span class="comment">7</span></div><div class="line"><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span> <span class="comment">Test2</span> <span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span></div><div class="line"><span class="comment">Overwrite</span> <span class="comment">at</span> <span class="comment">0</span></div><div class="line"><span class="comment">0</span> <span class="comment">1</span> <span class="comment">2</span> <span class="comment">3</span> <span class="comment">4</span> <span class="comment">5</span> <span class="comment">6</span> <span class="comment">7</span></div><div class="line"><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span> <span class="comment">Test3</span> <span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span></div><div class="line"><span class="comment">0</span> <span class="comment">1</span> <span class="comment">2</span> <span class="comment">3</span> <span class="comment">4</span> <span class="comment">5</span> <span class="comment">6</span> <span class="comment">7</span> <span class="comment">Overread</span> <span class="comment">at</span> <span class="comment">0</span></div></pre></td></tr></table></figure>
+
+<p>まあ普通はこんなことはやらなくてポインタを比較するだけでいいんだけど。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://tanakahx.github.io/blog/2014/05/15/safe-fifo/" data-id="og83wt79lk8v8pmk" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Python/">Python</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+  
+    <nav id="page-nav">
+      <a class="extend prev" rel="prev" href="/archives/2014/">&laquo; Prev</a><a class="page-number" href="/archives/2014/">1</a><span class="page-number current">2</span><a class="page-number" href="/archives/2014/page/3/">3</a><a class="extend next" rel="next" href="/archives/2014/page/3/">Next &raquo;</a>
+    </nav>
+  
+</section>
+        
+          
+            <aside id="sidebar">
+  
+    <div class="widget-wrap">
+    <h3 class="widget-title">About</h3>
+    <div class="widget about">
+        <ul>
+            <li><strong>Hiroyuki Tanaka</strong>
+                
+                    (@<a href="http://www.twitter.com/tanakahx">tanakahx</a>)
+                
+            </li>
+            
+                <li>My GitHub profile page is <a href="http://github.com/tanakahx">http://github.com/tanakahx</a></li>
+            
+        </ul>
+    </div>
+</div>
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recents</h3>
+    <div class="widget recents">
+      <ul>
+        
+          <li>
+            <a href="/blog/2015/01/07/v8/">V8</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2015/01/06/hexo/">Hexo</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2014/09/13/ningler-blog-application-sample-using-ningle/">ningler - Blog application sample using ningle</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2014/09/01/effective-reading-a-file-in-common-lisp/">Common Lisp の効率的なファイル読み込み</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2014/08/25/wordbank/">Wordbank</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/">Android</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Emacs/">Emacs</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Git/">Git</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/">JavaScript</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Lisp/">Lisp</a><span class="tag-list-count">11</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Python/">Python</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/V8/">V8</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blog/">blog</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/09/">September 2014</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/08/">August 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/07/">July 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/06/">June 2014</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a><span class="archive-list-count">12</span></li></ul>
+    </div>
+  </div>
+
+  
+</aside>
+          
+        
+      </div>
+      <div id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      <a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc/4.0/88x31.png" /></a></br>
+      &copy; 2015 Hiroyuki Tanaka<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</div>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css" type="text/css">
+
+  <script src="/fancybox/jquery.fancybox.pack.js" type="text/javascript"></script>
+
+
+
+<script src="/js/script.js" type="text/javascript"></script>
+
+
+  </div>
+</body>
+</html>
