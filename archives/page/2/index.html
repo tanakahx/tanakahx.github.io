@@ -65,6 +65,84 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-how-to-write-common-lisp-script" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2014/08/02/how-to-write-common-lisp-script/" class="article-date">
+  <time datetime="2014-08-01T15:28:06.000Z" itemprop="datePublished">Aug 2 2014</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2014/08/02/how-to-write-common-lisp-script/">Common Lisp (SBCL) でスクリプトを書く方法</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Common Lisp (SBCL) でスクリプトを書くいい方法が見つからなかったので調べてみた。重要なのは次の三点。</p>
+<ul>
+<li>Quicklisp をロードしたイメージファイルの生成</li>
+<li>シェルスクリプト shebang からの exec sbcl ハック</li>
+<li>scripted main はシェルスクリプトに与えた $0 から判定する</li>
+</ul>
+<p>順を追って説明します。</p>
+<h2 id="Quicklisp_をロードしたイメージファイルの生成">Quicklisp をロードしたイメージファイルの生成</h2>
+<p>スクリプト実行するたびに Quicklisp を実行しているとロードに時間がかかるので、あらかじめ Quicklisp をロードした状態のイメージファイル (以下の例では sbcl-base.core という名前のイメージファイル) を生成し、スクリプト実行時に指定する。</p>
+<figure class="highlight console"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">$ sbcl                                                                                                                                                                                                               [~/dev/tmp]</div><div class="line">This <span class="keyword">is</span> SBCL <span class="number">1.2</span><span class="number">.1</span>, an implementation of ANSI Common Lisp.</div><div class="line">More information about SBCL <span class="keyword">is</span> available at &lt;http:<span class="comment">//www.sbcl.org/&gt;.</span></div><div class="line"></div><div class="line">SBCL <span class="keyword">is</span> free software, provided <span class="keyword">as</span> <span class="keyword">is</span>, with absolutely no warranty.</div><div class="line">It <span class="keyword">is</span> mostly <span class="keyword">in</span> the <span class="keyword">public</span> domain; some portions are provided under</div><div class="line">BSD-style licenses.  See the CREDITS and COPYING files <span class="keyword">in</span> the</div><div class="line">distribution <span class="keyword">for</span> more information.</div><div class="line">* (sb-ext:save-lisp-and-die <span class="string">"sbcl-base.core"</span> :executable t)</div><div class="line">[undoing binding stack and other enclosing state... done]</div><div class="line">[saving current Lisp image <span class="keyword">into</span> sbcl-<span class="keyword">base</span>.core:</div><div class="line">writing <span class="number">5744</span> bytes <span class="keyword">from</span> the read-only space at <span class="number">0x0</span>x20000000</div><div class="line">writing <span class="number">3120</span> bytes <span class="keyword">from</span> the <span class="keyword">static</span> space at <span class="number">0x0</span>x20100000</div><div class="line">writing <span class="number">53903360</span> bytes <span class="keyword">from</span> the dynamic space at <span class="number">0x0</span>x1000000000</div><div class="line">done]</div></pre></td></tr></table></figure>
+
+<p>イメージファイルを指定して sbcl を起動するには —core オプションに指定すればよい。</p>
+<h2 id="シェルスクリプト_shebang_からの_exec_sbcl_ハック">シェルスクリプト shebang からの exec sbcl ハック</h2>
+<p>sbcl を直接 shebang で実行するのではなく /bin/sh 経由で sbcl に exec する。<code>--core</code> オプションは先ほど生成した Quicklisp をロード済みのイメージファイルで起動するために指定している。</p>
+<figure class="highlight cl"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="shebang">#!/bin/sh</span></div><div class="line"><span class="comment">#|</span></div><div class="line"><span class="keyword">exec</span> sbcl --core sbcl-base.core --script <span class="variable">$0</span> <span class="variable">$0</span> <span class="string">"<span class="variable">$@</span>"</span></div><div class="line">|<span class="comment">#</span></div><div class="line">;;; code comes here</div></pre></td></tr></table></figure>
+
+<p>このとき、最初の <code>$0</code> はこのファイル自身をスクリプト実行するために与えている。2 番目の <code>$0</code> は後述する scripted main であることを判定するために使う。最後の <code>&quot;$@&quot;</code> は残りの全引数を sbcl に与えている。</p>
+<p>2 行目の <code>#|</code> は <code>#</code> で始まるためシェルスクリプトからはコメント行に解釈される。一方、Common Lisp からは <code>#|</code> から <code>|#</code> まではコメントであると見なされるためスクリプト実行時は無視される。ただし、最初の shebang の行のみは Common Lisp の文法では解釈できないため、.sbclrc に読み飛ばす設定をする。</p>
+<figure class="highlight cl"><figcaption><span>.sbclrc</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="list">(<span class="title">set-dispatch-macro-character</span> #\# #\!</span></div><div class="line">  <span class="list">(<span class="title">lambda</span> <span class="list">(<span class="title">stream</span> character n)</span></span></div><div class="line">    <span class="list">(<span class="title"><span class="built_in">declare</span></span> <span class="list">(<span class="title">ignore</span> character n)</span>)</span></div><div class="line">    <span class="list">(<span class="title"><span class="built_in">read-line</span></span> stream <span class="literal">nil</span> <span class="literal">nil</span> t)</span></div><div class="line">    <span class="literal">nil</span>))</div></pre></td></tr></table></figure>
+
+<h2 id="scripted_main_はシェルスクリプトに与えた_$0_から判定する">scripted main はシェルスクリプトに与えた $0 から判定する</h2>
+<p>scripted main とはスクリプトとして実行された際のエントリポイントを表す造語。例えば、Python ならば</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span><span class="params">()</span>:</span></div><div class="line">    <span class="comment"># ...</span></div><div class="line">main() <span class="comment"># call main function directly</span></div></pre></td></tr></table></figure>
+
+<p>のように実際の処理をべた書きしてしまうと、このスクリプトをモジュールとして外部に公開するときに、import するたびに main() が実行されてしまい困ることになる。そこで、</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</div><div class="line">    main() <span class="comment"># scripted main</span></div></pre></td></tr></table></figure>
+
+<p>のように <code>__name__</code> 変数でスクリプト実行かどうかを条件判定すれば、このモジュールをスタンドアロンなスクリプトとして実行するときは main() が実行され、外部から import される場合には main() は実行されずに必要な機能のみ読み込ませることが可能になる。</p>
+<p>これと同じことを SBCL で実現するにはコマンド実行時のみコマンドライン引数がセットされる <code>sb-ext:*posix-argv*</code> を使い、<code>(pathname-name *load-truename*)</code> で与えられる文字列が見つかればスクリプト実行なので scripted main を実行、見つからなければ REPL や外部ファイルから load されたものとして scripted main は実行しない、というように見分ける作戦にする。</p>
+<figure class="highlight cl"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">;; scripted main</span></div><div class="line"><span class="list">(<span class="title"><span class="built_in">when</span></span> <span class="list">(<span class="title">member</span> <span class="list">(<span class="title">pathname-name</span> *load-truename*)</span></span></span></div><div class="line">              sb-ext<span class="attribute">:*posix-argv*</span></div><div class="line">              <span class="attribute">:test</span> #'<span class="list">(<span class="title">lambda</span> <span class="list">(<span class="title">x</span> y)</span> <span class="list">(<span class="title">search</span> x y <span class="attribute">:test</span> #'equalp)</span>)</span>)</div><div class="line">  <span class="list">(<span class="title">main</span>)</span>)</div></pre></td></tr></table></figure>
+
+<p>しかし、普通に <code>sbcl --script file &lt;filename&gt;</code> のようにファイルを指定して実行しただけでは <code>&lt;filename&gt;</code> という文字列は <code>sb-ext:*posix-argv*</code> に含まれないという問題がある。そこで、sbcl を exec するときに <code>--script $0</code> の後に重ねて <code>$0</code> を指定することで、shebang から起動された場合は <code>sb-ext:*posix-argv*</code> の第二要素に必ずスクリプトのファイル名を入れることにする。(第一要素は <code>sbcl</code> になる)</p>
+<p>以上をまとめるとスクリプト全体は次のようになる。</p>
+<figure class="highlight cl"><figcaption><span>myscript.lisp</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"><span class="shebang">#!/bin/sh</span></div><div class="line"><span class="comment">#|</span></div><div class="line"><span class="keyword">exec</span> sbcl --core sbcl-base.core --script <span class="variable">$0</span> <span class="variable">$0</span> <span class="string">"<span class="variable">$@</span>"</span></div><div class="line">|<span class="comment">#</span></div><div class="line"></div><div class="line">(<span class="built_in">let</span>* ((*standard-output* (make-broadcast-stream))</div><div class="line">       (*error-output* *standard-output*))</div><div class="line">  (ql:quickload <span class="string">"split-sequence"</span>))</div><div class="line"></div><div class="line">(<span class="keyword">in</span>-package :cl-user)</div><div class="line">(defpackage :myscript</div><div class="line">  (:use <span class="comment">#:cl #:split-sequence))</span></div><div class="line">(<span class="keyword">in</span>-package :myscript)</div><div class="line"></div><div class="line">;;; code comes here</div><div class="line"></div><div class="line">(defun main (argv)</div><div class="line">  (format t <span class="string">"~a~%"</span> (first argv))</div><div class="line">  (format t <span class="string">"~s~%"</span> (split-sequence <span class="comment">#\, (first argv))))</span></div><div class="line"></div><div class="line">;; scripted main</div><div class="line">(when (member (pathname-name *load-truename*)</div><div class="line">              sb-ext:*posix-argv*</div><div class="line">              :test <span class="comment">#'(lambda (x y) (search x y :test #'equalp)))</span></div><div class="line">  (main (cddr sb-ext:*posix-argv*)))</div></pre></td></tr></table></figure>
+
+<p>コマンドライン引数で渡した文字列を <code>split-sequence</code> を使って <code>,</code> でリストに分割して表示するだけのスクリプト。<code>split-sequence</code> は Quicklisp からロードしているが、ロード中のメッセージを抑制するために、<code>*standard-output*</code> と <code>*error-output*</code> の束縛を一時的に変更して端末に出力されないようにしている。</p>
+<figure class="highlight console"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="variable">$ </span>./myscript.lisp <span class="string">"hello, world"</span></div><div class="line">hello, world</div><div class="line">(<span class="string">"hello"</span> <span class="string">" world"</span>)</div></pre></td></tr></table></figure>
+
+<p>参考</p>
+<p><a href="http://speely.wordpress.com/2010/11/27/writing-scripts-with-common-lisp/" target="_blank" rel="external">Writing Scripts with Common Lisp</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://tanakahx.github.io/blog/2014/08/02/how-to-write-common-lisp-script/" data-id="va1jqgbe5hrl908y" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Lisp/">Lisp</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-android-studio-0-dot-8-1" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/blog/2014/07/09/android-studio-0-dot-8-1/" class="article-date">
@@ -556,43 +634,6 @@
 
 
   
-    <article id="post-the-art-of-readable-code" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/blog/2014/05/17/the-art-of-readable-code/" class="article-date">
-  <time datetime="2014-05-17T13:46:56.000Z" itemprop="datePublished">May 17 2014</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blog/2014/05/17/the-art-of-readable-code/">リーダブルコード</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>だいぶいまさら間が否めないが巷で噂のリーダブルコードを読んだ。いかにしてわかりやすいコードを書くかという点に関して豊富な具体例とともにわかりやすく解説している良書だった。まあコードコンプリートにも書かれている内容だが。ちゃんとコメント書かないと…。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://tanakahx.github.io/blog/2014/05/17/the-art-of-readable-code/" data-id="hj935w2zrxms9bml" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/archives/">&laquo; Prev</a><a class="page-number" href="/archives/">1</a><span class="page-number current">2</span><a class="page-number" href="/archives/page/3/">3</a><a class="extend next" rel="next" href="/archives/page/3/">Next &raquo;</a>
@@ -629,6 +670,10 @@
       <ul>
         
           <li>
+            <a href="/blog/2015/01/25/migrate-from-octopress-to-hexo/">Migrate from Octopress to Hexo</a>
+          </li>
+        
+          <li>
             <a href="/blog/2015/01/07/v8/">V8</a>
           </li>
         
@@ -644,10 +689,6 @@
             <a href="/blog/2014/09/01/effective-reading-a-file-in-common-lisp/">Common Lisp の効率的なファイル読み込み</a>
           </li>
         
-          <li>
-            <a href="/blog/2014/08/25/wordbank/">Wordbank</a>
-          </li>
-        
       </ul>
     </div>
   </div>
@@ -657,7 +698,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/">Android</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Emacs/">Emacs</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Git/">Git</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/">JavaScript</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Lisp/">Lisp</a><span class="tag-list-count">11</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Python/">Python</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/V8/">V8</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blog/">blog</a><span class="tag-list-count">1</span></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/">Android</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blog/">Blog</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Emacs/">Emacs</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Git/">Git</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/">JavaScript</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Lisp/">Lisp</a><span class="tag-list-count">11</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Python/">Python</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/V8/">V8</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blog/">blog</a><span class="tag-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -666,7 +707,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/09/">September 2014</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/08/">August 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/07/">July 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/06/">June 2014</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a><span class="archive-list-count">12</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/09/">September 2014</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/08/">August 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/07/">July 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/06/">June 2014</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a><span class="archive-list-count">12</span></li></ul>
     </div>
   </div>
 

@@ -3,20 +3,23 @@
 <head>
   <meta charset="utf-8">
   
-  <title>Common Lisp の効率的なファイル読み込み | H.Tanaka&#39;s Blog</title>
+  <title>Migrate from Octopress to Hexo | H.Tanaka&#39;s Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="Common Lisp でファイルを読み込む方法は Slurping a file in Common Lisp が参考になる。指定したファイルを読み込み、バッファ (配列) を返す関数はこんな感じ。実測はしていないが Perl スクリプト以上の速度が出るらしい。
-12345(defun read-file (path)  (with-open-file (in path)    (let ((s">
+  <meta name="description" content="年末年始にOctopressからHexoに移行したときのメモ。
+まずOctopressで書いていたMarkdownの記事をHexo用のフォーマットに変換するスクリプトを書いた。
+1234#!/bin/shfor i in *.markdown; do    awk '!/^(layout|comments)/&&NR!=1{print $0}' $i | sed 's/^categories/ta">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Common Lisp の効率的なファイル読み込み">
-<meta property="og:url" content="http://tanakahx.github.io/blog/2014/09/01/effective-reading-a-file-in-common-lisp/">
+<meta property="og:title" content="Migrate from Octopress to Hexo">
+<meta property="og:url" content="http://tanakahx.github.io/blog/2015/01/25/migrate-from-octopress-to-hexo/">
 <meta property="og:site_name" content="H.Tanaka's Blog">
-<meta property="og:description" content="Common Lisp でファイルを読み込む方法は Slurping a file in Common Lisp が参考になる。指定したファイルを読み込み、バッファ (配列) を返す関数はこんな感じ。実測はしていないが Perl スクリプト以上の速度が出るらしい。
-12345(defun read-file (path)  (with-open-file (in path)    (let ((s">
+<meta property="og:description" content="年末年始にOctopressからHexoに移行したときのメモ。
+まずOctopressで書いていたMarkdownの記事をHexo用のフォーマットに変換するスクリプトを書いた。
+1234#!/bin/shfor i in *.markdown; do    awk '!/^(layout|comments)/&&NR!=1{print $0}' $i | sed 's/^categories/ta">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Common Lisp の効率的なファイル読み込み">
-<meta name="twitter:description" content="Common Lisp でファイルを読み込む方法は Slurping a file in Common Lisp が参考になる。指定したファイルを読み込み、バッファ (配列) を返す関数はこんな感じ。実測はしていないが Perl スクリプト以上の速度が出るらしい。
-12345(defun read-file (path)  (with-open-file (in path)    (let ((s">
+<meta name="twitter:title" content="Migrate from Octopress to Hexo">
+<meta name="twitter:description" content="年末年始にOctopressからHexoに移行したときのメモ。
+まずOctopressで書いていたMarkdownの記事をHexo用のフォーマットに変換するスクリプトを書いた。
+1234#!/bin/shfor i in *.markdown; do    awk '!/^(layout|comments)/&&NR!=1{print $0}' $i | sed 's/^categories/ta">
 
   
     <link rel="alternative" href="/atom.xml" title="H.Tanaka&#39;s Blog" type="application/atom+xml">
@@ -66,10 +69,10 @@
   </div>
 </div>
       <div class="outer">
-        <section id="main"><article id="post-effective-reading-a-file-in-common-lisp" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-migrate-from-octopress-to-hexo" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/blog/2014/09/01/effective-reading-a-file-in-common-lisp/" class="article-date">
-  <time datetime="2014-08-31T17:16:13.000Z" itemprop="datePublished">Sep 1 2014</time>
+    <a href="/blog/2015/01/25/migrate-from-octopress-to-hexo/" class="article-date">
+  <time datetime="2015-01-25T11:02:30.000Z" itemprop="datePublished">Jan 25 2015</time>
 </a>
     
   </div>
@@ -80,7 +83,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      Common Lisp の効率的なファイル読み込み
+      Migrate from Octopress to Hexo
     </h1>
   
 
@@ -88,17 +91,24 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>Common Lisp でファイルを読み込む方法は <a href="http://www.ymeme.com/slurping-a-file-common-lisp-83.html" target="_blank" rel="external">Slurping a file in Common Lisp</a> が参考になる。指定したファイルを読み込み、バッファ (配列) を返す関数はこんな感じ。実測はしていないが Perl スクリプト以上の速度が出るらしい。</p>
-<figure class="highlight cl"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="list">(<span class="title">defun</span> read-file <span class="list">(<span class="title">path</span>)</span></span></div><div class="line">  <span class="list">(<span class="title">with-open-file</span> <span class="list">(<span class="title">in</span> path)</span></span></div><div class="line">    <span class="list">(<span class="title">let</span> <span class="list">(<span class="list">(<span class="title">seq</span> <span class="list">(<span class="title">make-array</span> <span class="list">(<span class="title">file-length</span> in)</span> <span class="keyword">:element-type</span> <span class="quoted">'character</span> <span class="keyword">:fill-pointer</span> <span class="literal">t</span>)</span>)</span>)</span></span></div><div class="line">      <span class="list">(<span class="title">setf</span> <span class="list">(<span class="title">fill-pointer</span> seq)</span> <span class="list">(<span class="title">read-sequence</span> seq in)</span>)</span></div><div class="line">      seq)))</div></pre></td></tr></table></figure>
+        <p>年末年始にOctopressからHexoに移行したときのメモ。</p>
+<p>まずOctopressで書いていたMarkdownの記事をHexo用のフォーマットに変換するスクリプトを書いた。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="shebang">#!/bin/sh</span></div><div class="line"><span class="keyword">for</span> i <span class="keyword">in</span> *.markdown; <span class="keyword">do</span></div><div class="line">    awk <span class="string">'!/^(layout|comments)/&&NR!=1{print $0}'</span> <span class="variable">$i</span> | sed <span class="string">'s/^categories/tags/g'</span> | sed <span class="string">'s/^title: *"\(.*\)"$/title: \1/g'</span> &gt; <span class="string">"<span class="variable">$i</span>"</span>.markdown.new</div><div class="line"><span class="keyword">done</span></div></pre></td></tr></table></figure>
 
+<p>Hexoは1行目に<code>---</code>は書かないらしいので削除している。また、Octopressのlayout, comments等のタグもHexoでは不要なので削除し、OctopressのcategoriesはHexoではtagsとして扱うようなので変換している。最後に、Octopressでつけていたtitleのダブルクォーテーションを削除している。無論、.markdown.newの内容が問題なさそうであれば.markdownにリネームしておく。</p>
+<p>また、Permalinkの設定をOctopressに合わせる必要がある。これはHexoの<code>_config.yml</code>に設定することで対応できる。</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="symbol">permalink:</span> blog/<span class="symbol">:year/</span><span class="symbol">:month/</span><span class="symbol">:day/</span><span class="symbol">:title/</span></div></pre></td></tr></table></figure>
+
+<p>先頭の<code>blog/</code>がミソで、最初これを設定していなかったが故にOctopressとPermalinkの構造が変わってしまい、記事へのリンクが切れてしまっていることに気づかなかった。</p>
+<p>テーマは<a href="https://github.com/xing5/hexo-theme-codeland" target="_blank" rel="external">Codeland</a>というテーマをforkして、右のサイドペインにAboutウィジェットが表示されるようにしてみた。forkしたテーマは<a href="https://github.com/tanakahx/hexo-theme-codeland" target="_blank" rel="external">Github</a>に登録しておいた。</p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://tanakahx.github.io/blog/2014/09/01/effective-reading-a-file-in-common-lisp/" data-id="suz1i8yiti2ffp1m" class="article-share-link">Share</a>
+      <a data-url="http://tanakahx.github.io/blog/2015/01/25/migrate-from-octopress-to-hexo/" data-id="nlx399m4ym8i34g1" class="article-share-link">Share</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Lisp/">Lisp</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Blog/">Blog</a></li></ul>
 
     </footer>
   </div>
@@ -106,19 +116,10 @@
     
 <nav id="article-nav">
   
-    <a href="/blog/2014/09/13/ningler-blog-application-sample-using-ningle/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          ningler - Blog application sample using ningle
-        
-      </div>
-    </a>
   
-  
-    <a href="/blog/2014/08/25/wordbank/" id="article-nav-older" class="article-nav-link-wrap">
+    <a href="/blog/2015/01/07/v8/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">Wordbank</div>
+      <div class="article-nav-title">V8</div>
     </a>
   
 </nav>

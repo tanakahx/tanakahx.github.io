@@ -65,6 +65,54 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-migrate-from-octopress-to-hexo" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2015/01/25/migrate-from-octopress-to-hexo/" class="article-date">
+  <time datetime="2015-01-25T11:02:30.000Z" itemprop="datePublished">Jan 25 2015</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2015/01/25/migrate-from-octopress-to-hexo/">Migrate from Octopress to Hexo</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>年末年始にOctopressからHexoに移行したときのメモ。</p>
+<p>まずOctopressで書いていたMarkdownの記事をHexo用のフォーマットに変換するスクリプトを書いた。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="shebang">#!/bin/sh</span></div><div class="line"><span class="keyword">for</span> i <span class="keyword">in</span> *.markdown; <span class="keyword">do</span></div><div class="line">    awk <span class="string">'!/^(layout|comments)/&&NR!=1{print $0}'</span> <span class="variable">$i</span> | sed <span class="string">'s/^categories/tags/g'</span> | sed <span class="string">'s/^title: *"\(.*\)"$/title: \1/g'</span> &gt; <span class="string">"<span class="variable">$i</span>"</span>.markdown.new</div><div class="line"><span class="keyword">done</span></div></pre></td></tr></table></figure>
+
+<p>Hexoは1行目に<code>---</code>は書かないらしいので削除している。また、Octopressのlayout, comments等のタグもHexoでは不要なので削除し、OctopressのcategoriesはHexoではtagsとして扱うようなので変換している。最後に、Octopressでつけていたtitleのダブルクォーテーションを削除している。無論、.markdown.newの内容が問題なさそうであれば.markdownにリネームしておく。</p>
+<p>また、Permalinkの設定をOctopressに合わせる必要がある。これはHexoの<code>_config.yml</code>に設定することで対応できる。</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="symbol">permalink:</span> blog/<span class="symbol">:year/</span><span class="symbol">:month/</span><span class="symbol">:day/</span><span class="symbol">:title/</span></div></pre></td></tr></table></figure>
+
+<p>先頭の<code>blog/</code>がミソで、最初これを設定していなかったが故にOctopressとPermalinkの構造が変わってしまい、記事へのリンクが切れてしまっていることに気づかなかった。</p>
+<p>テーマは<a href="https://github.com/xing5/hexo-theme-codeland" target="_blank" rel="external">Codeland</a>というテーマをforkして、右のサイドペインにAboutウィジェットが表示されるようにしてみた。forkしたテーマは<a href="https://github.com/tanakahx/hexo-theme-codeland" target="_blank" rel="external">Github</a>に登録しておいた。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://tanakahx.github.io/blog/2015/01/25/migrate-from-octopress-to-hexo/" data-id="nlx399m4ym8i34g1" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Blog/">Blog</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-v8" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/blog/2015/01/07/v8/" class="article-date">
@@ -204,6 +252,10 @@
       <ul>
         
           <li>
+            <a href="/blog/2015/01/25/migrate-from-octopress-to-hexo/">Migrate from Octopress to Hexo</a>
+          </li>
+        
+          <li>
             <a href="/blog/2015/01/07/v8/">V8</a>
           </li>
         
@@ -219,10 +271,6 @@
             <a href="/blog/2014/09/01/effective-reading-a-file-in-common-lisp/">Common Lisp の効率的なファイル読み込み</a>
           </li>
         
-          <li>
-            <a href="/blog/2014/08/25/wordbank/">Wordbank</a>
-          </li>
-        
       </ul>
     </div>
   </div>
@@ -232,7 +280,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/">Android</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Emacs/">Emacs</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Git/">Git</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/">JavaScript</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Lisp/">Lisp</a><span class="tag-list-count">11</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Python/">Python</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/V8/">V8</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blog/">blog</a><span class="tag-list-count">1</span></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/">Android</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blog/">Blog</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Emacs/">Emacs</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Git/">Git</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/">JavaScript</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Lisp/">Lisp</a><span class="tag-list-count">11</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Python/">Python</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/V8/">V8</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blog/">blog</a><span class="tag-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -241,7 +289,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/09/">September 2014</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/08/">August 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/07/">July 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/06/">June 2014</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a><span class="archive-list-count">12</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/09/">September 2014</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/08/">August 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/07/">July 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/06/">June 2014</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a><span class="archive-list-count">12</span></li></ul>
     </div>
   </div>
 
