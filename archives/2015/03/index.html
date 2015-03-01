@@ -3,17 +3,17 @@
 <head>
   <meta charset="utf-8">
   
-  <title>リーダブルコード | H.Tanaka&#39;s Blog</title>
+  <title>Archives: 2015/3 | H.Tanaka&#39;s Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="だいぶいまさら間が否めないが巷で噂のリーダブルコードを読んだ。いかにしてわかりやすいコードを書くかという点に関して豊富な具体例とともにわかりやすく解説している良書だった。まあコードコンプリートにも書かれている内容だが。ちゃんとコメント書かないと…。">
-<meta property="og:type" content="article">
-<meta property="og:title" content="リーダブルコード">
-<meta property="og:url" content="http://tanakahx.github.io/blog/2014/05/17/the-art-of-readable-code/">
+  <meta name="description">
+<meta property="og:type" content="website">
+<meta property="og:title" content="H.Tanaka's Blog">
+<meta property="og:url" content="http://tanakahx.github.io/archives/2015/03/">
 <meta property="og:site_name" content="H.Tanaka's Blog">
-<meta property="og:description" content="だいぶいまさら間が否めないが巷で噂のリーダブルコードを読んだ。いかにしてわかりやすいコードを書くかという点に関して豊富な具体例とともにわかりやすく解説している良書だった。まあコードコンプリートにも書かれている内容だが。ちゃんとコメント書かないと…。">
+<meta property="og:description">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="リーダブルコード">
-<meta name="twitter:description" content="だいぶいまさら間が否めないが巷で噂のリーダブルコードを読んだ。いかにしてわかりやすいコードを書くかという点に関して豊富な具体例とともにわかりやすく解説している良書だった。まあコードコンプリートにも書かれている内容だが。ちゃんとコメント書かないと…。">
+<meta name="twitter:title" content="H.Tanaka's Blog">
+<meta name="twitter:description">
 
   
     <link rel="alternative" href="/atom.xml" title="H.Tanaka&#39;s Blog" type="application/atom+xml">
@@ -63,10 +63,12 @@
   </div>
 </div>
       <div class="outer">
-        <section id="main"><article id="post-the-art-of-readable-code" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main">
+  
+    <article id="post-let-over-lambda" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/blog/2014/05/17/the-art-of-readable-code/" class="article-date">
-  <time datetime="2014-05-17T13:46:56.000Z" itemprop="datePublished">May 17 2014</time>
+    <a href="/blog/2015/03/01/let-over-lambda/" class="article-date">
+  <time datetime="2015-03-01T14:29:27.000Z" itemprop="datePublished">Mar 1 2015</time>
 </a>
     
   </div>
@@ -76,8 +78,8 @@
       <header class="article-header">
         
   
-    <h1 class="article-title" itemprop="name">
-      リーダブルコード
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2015/03/01/let-over-lambda/">Let Over Lambda</a>
     </h1>
   
 
@@ -85,40 +87,25 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>だいぶいまさら間が否めないが巷で噂のリーダブルコードを読んだ。いかにしてわかりやすいコードを書くかという点に関して豊富な具体例とともにわかりやすく解説している良書だった。まあコードコンプリートにも書かれている内容だが。ちゃんとコメント書かないと…。</p>
+        <p>先週から読み始めてようやく<a href="http://bookmeter.com/u/553612" target="_blank" rel="external">読了</a>。先々月、半分くらいまで読んでいたのだが、中断して内容を忘れてしまっていたので最初から一気に読み直した。Let Over Lambdaは一言でいうと、Common Lispのアドバンスドなマクロのテクニックが解説されている非常にためになる本。特にマクロを定義するためのdefmacro自体を拡張するマクロや、aletやalambdaといった代表的なアナフォリックマクロ、パンドリックマクロでクロージャを開くといったLispマクロならではの技術が詰まっている。これらのマクロに共通して見られることだが、本書は一貫して構文を共通化することの重要性を説いていたのが印象的であった。lambdaフォームにはシャープクォート<code>#&#39;</code>をつけないとか、スペシャル変数には耳当てをつけないとか。</p>
+<p>筆者の主張としては最初から最後までLispを賛美するのだが、客観性に欠ける部分があったり、効率性に関しては他言語との正当な比較をしていない等、気になるところがないわけではないが、それ以上にマクロの面白さに引き込まれて読んでいて楽しかった。On Lispと並び、個人的にはかなりのヒット本。</p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://tanakahx.github.io/blog/2014/05/17/the-art-of-readable-code/" data-id="hj935w2zrxms9bml" class="article-share-link">Share</a>
+      <a data-url="http://tanakahx.github.io/blog/2015/03/01/let-over-lambda/" data-id="4ifzeuj89gh1qx5t" class="article-share-link">Share</a>
       
       
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Lisp/">Lisp</a></li></ul>
+
     </footer>
   </div>
   
-    
-<nav id="article-nav">
-  
-    <a href="/blog/2014/05/18/map-function-in-lisp/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          Lisp の map 関数
-        
-      </div>
-    </a>
-  
-  
-    <a href="/blog/2014/05/16/update-octopress-post/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">Octopress の記事の日付を更新するスクリプト</div>
-    </a>
-  
-</nav>
-
-  
 </article>
 
+
+  
+  
 </section>
         
           

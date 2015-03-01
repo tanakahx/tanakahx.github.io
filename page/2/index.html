@@ -65,6 +65,86 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-wordbank" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2014/08/18/wordbank/" class="article-date">
+  <time datetime="2014-08-18T03:52:43.000Z" itemprop="datePublished">Aug 18 2014</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2014/08/18/wordbank/">Wordbank - 英和辞書用コマンドラインインタフェース</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Common Lisp で何かプログラムを作ろうと思い立ち、<a href="https://github.com/tanakahx/wordbank" target="_blank" rel="external">Wordbank</a> というものを作りました。これはコマンドプロンプトに入力した英単語の意味を表示するだけのプログラムですが、辞書で引いた単語の履歴を覚えておいて、後で復習できるような目的で作成しています(履歴機能は未実装)。こだわったところは、SLIME 上でコンパイルしたり Quicklisp でロードできるようにしつつ、出来上がった Lisp のソースコードをそのままシェルからスクリプト実行できるようにした点です。複数ファイルから構成される場合にスクリプト実行する方法はもう少し工夫する必要がありそうです。</p>
+<p>問題の辞書ですが、<a href="https://dejizo.jp/dev/index.html" target="_blank" rel="external">デ辞蔵 REST版API</a> という Web サービス があったので利用させて頂きました。現状、API の動作確認用プロトタイプという段階であり、クエリを投げて結果を表示することしかできませんが、引き続き履歴機能の実装と検索機能の拡充を進めていく予定です。</p>
+<p>ちなみに HTTP リクエストには <a href="http://weitz.de/drakma/" target="_blank" rel="external">Drakma</a>、検索結果からの情報抽出には <a href="http://weitz.de/cl-ppcre/" target="_blank" rel="external">CL-PPCRE</a> という正規表現ライブラリを利用しました。Common Lisp では package.lisp にパッケージ情報やら asdf ファイルに依存関係やらを書くことが多いようですが、<a href="https://github.com/fukamachi/cl-project" target="_blank" rel="external">CL-Project</a> というスケルトン生成ツールはユニットテストの設定もしてくれるので便利でした。同様のツールで <a href="http://www.xach.com/lisp/quickproject/" target="_blank" rel="external">Quickproject</a> がありますが、こちらはユニットテストの設定はしないようです。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://tanakahx.github.io/blog/2014/08/18/wordbank/" data-id="aay54g57x9hucghp" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Lisp/">Lisp</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-get-output-stream-string" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2014/08/11/get-output-stream-string/" class="article-date">
+  <time datetime="2014-08-11T06:55:12.000Z" itemprop="datePublished">Aug 11 2014</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2014/08/11/get-output-stream-string/">get-output-stream-string</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>get-output-stream-string は指定したストリームに出力された文字を出力順のまま文字列として返す関数である。関数が実行される際に、ストリーム中のすべての文字はクリアされる。Hyperspec の get-output-stream-string によると、 make-string-output-stream <em>以外</em>で生成したストリームに関しての動作は未定義とされている。Practical Common Lisp のサンプルプログラムに with-output-to-string で生成したストリームから get-output-stream-string で文字列として取り出しているコードがあるが、言語仕様上はよろしくないようだ。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://tanakahx.github.io/blog/2014/08/11/get-output-stream-string/" data-id="m5rtz7z6xebmnmr5" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Lisp/">Lisp</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-how-to-write-common-lisp-script" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/blog/2014/08/02/how-to-write-common-lisp-script/" class="article-date">
@@ -521,119 +601,6 @@
 
 
   
-    <article id="post-fibonacci-sequence" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/blog/2014/05/19/fibonacci-sequence/" class="article-date">
-  <time datetime="2014-05-19T13:26:09.000Z" itemprop="datePublished">May 19 2014</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blog/2014/05/19/fibonacci-sequence/">フィボナッチ数列</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>なんとなくフィボナッチ数列を計算したくなった。素朴な実装だとどのくらい遅いのかというと。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="preprocessor">#<span class="keyword">include</span> &lt;stdio.h&gt;</span></div><div class="line"><span class="preprocessor">#<span class="keyword">include</span> &lt;stdlib.h&gt;</span></div><div class="line"></div><div class="line"><span class="keyword">int</span> fib(<span class="keyword">int</span> n)</div><div class="line">{</div><div class="line">	<span class="keyword">if</span> (n == <span class="number">0</span>) {</div><div class="line">		<span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">	}</div><div class="line">	<span class="keyword">else</span> <span class="keyword">if</span> (n == <span class="number">1</span>) {</div><div class="line">		<span class="keyword">return</span> <span class="number">1</span>;</div><div class="line">	}</div><div class="line">	<span class="keyword">else</span> {</div><div class="line">		<span class="keyword">return</span> fib(n-<span class="number">1</span>) + fib(n-<span class="number">2</span>);</div><div class="line">	}</div><div class="line">}</div><div class="line"></div><div class="line"><span class="keyword">int</span> main(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</div><div class="line">{</div><div class="line">	<span class="keyword">int</span> n = strtol(argv[<span class="number">1</span>], NULL, <span class="number">10</span>);</div><div class="line">	<span class="built_in">printf</span>(<span class="string">"%d\n"</span>, fib(n));</div><div class="line">	<span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">}</div></pre></td></tr></table></figure>
-
-
-
-<figure class="highlight console"><figcaption><span>実行結果</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">time</span> ./<span class="operator">a</span>.out <span class="number">45</span></div><div class="line"><span class="number">1134903170</span></div><div class="line">./<span class="operator">a</span>.out <span class="number">45</span>  <span class="number">14.84</span>s user <span class="number">0.02</span>s <span class="keyword">system</span> <span class="number">99</span>% cpu <span class="number">14.916</span> total</div></pre></td></tr></table></figure>
-
-<p>フィボナッチ数列は fib(n) と fib(n-1) の和からなっており、1 だけ異なる引数で二手に分かれて再帰していくので、何度も同じ計算を繰り返すはめになる。したがって、与えられた n に対して計算した結果をキャッシュ(メモ)しておいて、再び同じ n が与えられたらキャッシュから返すようにすれば高速化が望める。これをメモ化という。メモするための記憶領域は別途必要になるが、実行速度の向上はそのオーバーヘッドを遥かに上回る。確か最初は SICP の本か何かで読んだ気がするがだいぶ忘れてて、記憶を頼りに書こうとしたが結局ググってしまったことは内緒。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"><span class="preprocessor">#<span class="keyword">include</span> &lt;stdio.h&gt;</span></div><div class="line"><span class="preprocessor">#<span class="keyword">include</span> &lt;stdlib.h&gt;</span></div><div class="line"></div><div class="line"><span class="keyword">int</span> memo[<span class="number">100</span>];</div><div class="line"></div><div class="line"><span class="keyword">int</span> fib(<span class="keyword">int</span> n)</div><div class="line">{</div><div class="line">	<span class="keyword">if</span> (memo[n]) {</div><div class="line">		<span class="keyword">return</span> memo[n];</div><div class="line">	}</div><div class="line">	<span class="keyword">else</span> <span class="keyword">if</span> (n == <span class="number">0</span>) {</div><div class="line">		<span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">	}</div><div class="line">	<span class="keyword">else</span> <span class="keyword">if</span> (n == <span class="number">1</span>) {</div><div class="line">		<span class="keyword">return</span> (memo[n] = <span class="number">1</span>);</div><div class="line">	}</div><div class="line">	<span class="keyword">else</span> {</div><div class="line">		<span class="keyword">return</span> (memo[n] = fib(n-<span class="number">1</span>) + fib(n-<span class="number">2</span>));</div><div class="line">	}</div><div class="line">}</div><div class="line"></div><div class="line"><span class="keyword">int</span> main(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</div><div class="line">{</div><div class="line">	<span class="keyword">int</span> n = strtol(argv[<span class="number">1</span>], NULL, <span class="number">10</span>);</div><div class="line">	<span class="built_in">printf</span>(<span class="string">"%d\n"</span>, fib(n));</div><div class="line">	<span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">}</div></pre></td></tr></table></figure>
-
-<p>お遊びなのでコードは適当に書いてます。実行速度は先ほどとは歴然の差。</p>
-<figure class="highlight console"><figcaption><span>実行結果</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">time</span> ./<span class="operator">a</span>.out <span class="number">45</span></div><div class="line"><span class="number">1134903170</span></div><div class="line">./<span class="operator">a</span>.out <span class="number">45</span>  <span class="number">0.00</span>s user <span class="number">0.00</span>s <span class="keyword">system</span> <span class="number">38</span>% cpu <span class="number">0.006</span> total</div></pre></td></tr></table></figure>
-
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://tanakahx.github.io/blog/2014/05/19/fibonacci-sequence/" data-id="xxrplttmsjjcioy2" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-map-function-in-lisp" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/blog/2014/05/18/map-function-in-lisp/" class="article-date">
-  <time datetime="2014-05-17T15:51:57.000Z" itemprop="datePublished">May 18 2014</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blog/2014/05/18/map-function-in-lisp/">Lisp の map 関数</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>Lisp にはリスト操作の map* 関数が 6 種類あるが違いが微妙なのでまとめてみた。まずは基本形の mapcar/maplist を押さえておけばいい感じ。</p>
-<h2 id="mapcar/maplist">mapcar/maplist</h2>
-<p>mapcar は引数にとったリストを構成する各コンスセルの car 部に対して関数を適用し、その結果をリストとして返す。</p>
-<figure class="highlight cl"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="list">(<span class="title">mapcar</span> #'<span class="list">(<span class="title">lambda</span> <span class="list">(<span class="title">x</span>)</span> <span class="list">(<span class="title"><span class="built_in">*</span></span> x<span class="number"> 2</span>)</span>)</span> '<span class="list">(<span class="title">1</span><span class="number"> 2</span><span class="number"> 3</span>)</span>)</span></div><div class="line"><span class="comment">;; =&gt; (2 4 6)</span></div><div class="line"></div><div class="line"><span class="list">(<span class="title">mapcar</span> #'+ '<span class="list">(<span class="title">1</span><span class="number"> 2</span><span class="number"> 3</span>)</span> '<span class="list">(<span class="title">4</span><span class="number"> 5</span><span class="number"> 6</span>)</span>)</span></div><div class="line"><span class="comment">;; =&gt; (5 7 9)</span></div></pre></td></tr></table></figure>
-
-<p>maplist は引数にとったリストを構成する各コンスセルの cdr 部に対して関数を適用し、その結果をリストとして返す。</p>
-<figure class="highlight cl"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="list">(<span class="title">maplist</span> #<span class="quoted">'list</span> <span class="quoted">'(<span class="number">1</span> <span class="number">2</span> <span class="number">3</span>)</span>)</span></div><div class="line"><span class="comment">;; =&gt; (((1 2 3)) ((2 3)) ((3)))</span></div><div class="line"></div><div class="line"><span class="list">(<span class="title">maplist</span> #<span class="quoted">'list</span> <span class="quoted">'(<span class="number">1</span> <span class="number">2</span> <span class="number">3</span>)</span> <span class="quoted">'(<span class="number">4</span> <span class="number">5</span> <span class="number">6</span>)</span>)</span></div><div class="line"><span class="comment">;; =&gt; (((1 2 3) (4 5 6)) ((2 3) (5 6)) ((3) (6)))</span></div></pre></td></tr></table></figure>
-
-<h2 id="mapcan/mapcon">mapcan/mapcon</h2>
-<p>mapcan は mapcar 同様に、引数にとったリストを構成する各コンスセルの car 部に対して関数を適用するが、その結果がリストであることを期待して nconc したものを返す。</p>
-<figure class="highlight cl"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="list">(<span class="title">mapcan</span> #<span class="quoted">'list</span> <span class="quoted">'(<span class="number">1</span> <span class="number">2</span> <span class="number">3</span>)</span>)</span></div><div class="line"><span class="comment">;; =&gt; (nconc '(1) '(2) '(3))</span></div><div class="line"><span class="comment">;; =&gt; (1 2 3)</span></div><div class="line"></div><div class="line"><span class="list">(<span class="title">mapcan</span> #<span class="quoted">'list</span> <span class="quoted">'(<span class="number">1</span> <span class="number">2</span> <span class="number">3</span>)</span> <span class="quoted">'(<span class="number">4</span> <span class="number">5</span> <span class="number">6</span>)</span>)</span></div><div class="line"><span class="comment">;; =&gt; (nconc '(1 4) '(2 5) '(3 6))</span></div><div class="line"><span class="comment">;; =&gt; (1 4 2 5 3 6)</span></div></pre></td></tr></table></figure>
-
-<p>mapcon は maplist 同様に、引数にとったリストを構成する各コンスセルの cdr 部に対して関数を適用するが、その結果がリストであることを期待して nconc したものを返す。</p>
-<figure class="highlight cl"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="list">(<span class="title">mapcon</span> #<span class="quoted">'list</span> <span class="quoted">'(<span class="number">1</span> <span class="number">2</span> <span class="number">3</span>)</span>)</span></div><div class="line"><span class="comment">;; =&gt; (nconc '(1 2 3) '(2 3) '(3))</span></div><div class="line"><span class="comment">;; =&gt; ((1 2 3) (2 3) (3))</span></div><div class="line"></div><div class="line"><span class="list">(<span class="title">mapcon</span> #<span class="quoted">'list</span> <span class="quoted">'(<span class="number">1</span> <span class="number">2</span> <span class="number">3</span>)</span> <span class="quoted">'(<span class="number">4</span> <span class="number">5</span> <span class="number">6</span>)</span>)</span></div><div class="line"><span class="comment">;; =&gt; (nconc '((1 2 3) (4 5 6)) '((2 3) (5 6)) '((3) (6)))</span></div><div class="line"><span class="comment">;; =&gt; ((1 2 3) (4 5 6) (2 3) (5 6) (3) (6))</span></div></pre></td></tr></table></figure>
-
-<h2 id="mapc/mapl">mapc/mapl</h2>
-<p>mapc/mapl のリスト処理は mapcar/maplist と同様であるが、戻り値は一番目に与えたリストを返すという点で異なる。</p>
-<figure class="highlight cl"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="list">(<span class="title">mapc</span> #'<span class="list">(<span class="title">lambda</span> <span class="list">(<span class="title">x</span>)</span> <span class="list">(<span class="title"><span class="built_in">format</span></span> t <span class="string">"This is ~a~%"</span> x)</span>)</span> '<span class="list">(<span class="title">1</span><span class="number"> 2</span><span class="number"> 3</span>)</span>)</span></div><div class="line"><span class="comment">;; This is 1</span></div><div class="line"><span class="comment">;; This is 2</span></div><div class="line"><span class="comment">;; This is 3</span></div><div class="line"><span class="comment">;; =&gt; (1 2 3)</span></div><div class="line"><span class="list">(<span class="title">mapc</span> #'<span class="list">(<span class="title">lambda</span> <span class="list">(<span class="title">x</span> y)</span> <span class="list">(<span class="title"><span class="built_in">format</span></span> t <span class="string">"~a + ~a = ~a ~%"</span> x y <span class="list">(<span class="title"><span class="built_in">+</span></span> x y)</span>)</span>)</span> '<span class="list">(<span class="title">1</span><span class="number"> 2</span><span class="number"> 3</span>)</span> '<span class="list">(<span class="title">4</span><span class="number"> 5</span><span class="number"> 6</span>)</span>)</span></div><div class="line"><span class="comment">;; 1 + 4 = 5</span></div><div class="line"><span class="comment">;; 2 + 5 = 7</span></div><div class="line"><span class="comment">;; 3 + 6 = 9</span></div><div class="line"><span class="comment">;; =&gt; (1 2 3)</span></div><div class="line"></div><div class="line"><span class="list">(<span class="title">mapl</span> #'<span class="list">(<span class="title">lambda</span> <span class="list">(<span class="title">x</span>)</span> <span class="list">(<span class="title"><span class="built_in">format</span></span> t <span class="string">"This is ~a~%"</span> x)</span>)</span> '<span class="list">(<span class="title">1</span><span class="number"> 2</span><span class="number"> 3</span>)</span>)</span></div><div class="line"><span class="comment">;; This is (1 2 3)</span></div><div class="line"><span class="comment">;; This is (2 3)</span></div><div class="line"><span class="comment">;; This is (3)</span></div><div class="line"><span class="comment">;; =&gt; (1 2 3)</span></div><div class="line"><span class="list">(<span class="title">mapl</span> #'<span class="list">(<span class="title">lambda</span> <span class="list">(<span class="title">x</span> y)</span> <span class="list">(<span class="title"><span class="built_in">format</span></span> t <span class="string">"append ~a and ~a =&gt; ~a~%"</span> x y <span class="list">(<span class="title">append</span> x y)</span>)</span>)</span> '<span class="list">(<span class="title">1</span><span class="number"> 2</span><span class="number"> 3</span>)</span> '<span class="list">(<span class="title">4</span><span class="number"> 5</span><span class="number"> 6</span>)</span>)</span></div><div class="line"><span class="comment">;; append (1 2 3) and (4 5 6) =&gt; (1 2 3 4 5 6)</span></div><div class="line"><span class="comment">;; append (2 3) and (5 6) =&gt; (2 3 5 6)</span></div><div class="line"><span class="comment">;; append (3) and (6) =&gt; (3 6)</span></div><div class="line"><span class="comment">;; =&gt; (1 2 3)</span></div></pre></td></tr></table></figure>
-
-<h2 id="map/mapinto_(おまけ)">map/mapinto (おまけ)</h2>
-<p>map は一般的なシーケンス型に適用できる mapcar の汎用版。</p>
-<figure class="highlight cl"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="list">(<span class="title">map</span> <span class="quoted">'vector</span> #<span class="quoted">'+</span> #<span class="list">(<span class="number">1</span> <span class="number">2</span> <span class="number">3</span>)</span> #<span class="list">(<span class="number">4</span> <span class="number">5</span> <span class="number">6</span>)</span>)</span></div><div class="line"><span class="comment">;; =&gt; #(5 7 9)</span></div><div class="line"><span class="list">(<span class="title">map</span> <span class="quoted">'list</span> #<span class="quoted">'+</span> <span class="quoted">'(<span class="number">1</span> <span class="number">2</span> <span class="number">3</span>)</span> <span class="quoted">'(<span class="number">4</span> <span class="number">5</span> <span class="number">6</span>)</span>)</span></div><div class="line"><span class="comment">;; =&gt; (5 7 9)</span></div></pre></td></tr></table></figure>
-
-<p>mapinto は mapcar の結果を第一引数に指定した変数に割り当てる。</p>
-<figure class="highlight cl"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">(map-<span class="keyword">into</span> <span class="operator">a</span> <span class="comment">#'+ '(1 2 3) '(4 5 6))</span></div><div class="line">;; =&gt; (<span class="number">5</span> <span class="number">7</span> <span class="number">9</span>)</div><div class="line"><span class="operator">a</span></div><div class="line">;; =&gt; (<span class="number">5</span> <span class="number">7</span> <span class="number">9</span>)</div></pre></td></tr></table></figure>
-
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://tanakahx.github.io/blog/2014/05/18/map-function-in-lisp/" data-id="ry40717kxa607kh5" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Lisp/">Lisp</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/3/">Next &raquo;</a>
@@ -670,6 +637,14 @@
       <ul>
         
           <li>
+            <a href="/blog/2015/03/01/let-over-lambda/">Let Over Lambda</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2015/02/02/matrix/">行列積</a>
+          </li>
+        
+          <li>
             <a href="/blog/2015/01/25/migrate-from-octopress-to-hexo/">Migrate from Octopress to Hexo</a>
           </li>
         
@@ -681,14 +656,6 @@
             <a href="/blog/2015/01/06/hexo/">Hexo</a>
           </li>
         
-          <li>
-            <a href="/blog/2014/09/13/ningler-blog-application-sample-using-ningle/">ningler - Blog application sample using ningle</a>
-          </li>
-        
-          <li>
-            <a href="/blog/2014/09/01/effective-reading-a-file-in-common-lisp/">Common Lisp の効率的なファイル読み込み</a>
-          </li>
-        
       </ul>
     </div>
   </div>
@@ -698,7 +665,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/">Android</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blog/">Blog</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Emacs/">Emacs</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Git/">Git</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/">JavaScript</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Lisp/">Lisp</a><span class="tag-list-count">11</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Python/">Python</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/V8/">V8</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blog/">blog</a><span class="tag-list-count">1</span></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/">Android</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blog/">Blog</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Emacs/">Emacs</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Git/">Git</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/">JavaScript</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Lisp/">Lisp</a><span class="tag-list-count">13</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Python/">Python</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/V8/">V8</a><span class="tag-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -707,7 +674,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/09/">September 2014</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/08/">August 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/07/">July 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/06/">June 2014</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a><span class="archive-list-count">12</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/09/">September 2014</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/08/">August 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/07/">July 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/06/">June 2014</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a><span class="archive-list-count">12</span></li></ul>
     </div>
   </div>
 

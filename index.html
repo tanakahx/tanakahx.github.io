@@ -65,6 +65,87 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-let-over-lambda" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2015/03/01/let-over-lambda/" class="article-date">
+  <time datetime="2015-03-01T14:29:27.000Z" itemprop="datePublished">Mar 1 2015</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2015/03/01/let-over-lambda/">Let Over Lambda</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>先週から読み始めてようやく<a href="http://bookmeter.com/u/553612" target="_blank" rel="external">読了</a>。先々月、半分くらいまで読んでいたのだが、中断して内容を忘れてしまっていたので最初から一気に読み直した。Let Over Lambdaは一言でいうと、Common Lispのアドバンスドなマクロのテクニックが解説されている非常にためになる本。特にマクロを定義するためのdefmacro自体を拡張するマクロや、aletやalambdaといった代表的なアナフォリックマクロ、パンドリックマクロでクロージャを開くといったLispマクロならではの技術が詰まっている。これらのマクロに共通して見られることだが、本書は一貫して構文を共通化することの重要性を説いていたのが印象的であった。lambdaフォームにはシャープクォート<code>#&#39;</code>をつけないとか、スペシャル変数には耳当てをつけないとか。</p>
+<p>筆者の主張としては最初から最後までLispを賛美するのだが、客観性に欠ける部分があったり、効率性に関しては他言語との正当な比較をしていない等、気になるところがないわけではないが、それ以上にマクロの面白さに引き込まれて読んでいて楽しかった。On Lispと並び、個人的にはかなりのヒット本。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://tanakahx.github.io/blog/2015/03/01/let-over-lambda/" data-id="4ifzeuj89gh1qx5t" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Lisp/">Lisp</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-matrix" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2015/02/02/matrix/" class="article-date">
+  <time datetime="2015-02-02T14:40:51.000Z" itemprop="datePublished">Feb 2 2015</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2015/02/02/matrix/">行列積</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>行列積が必要になったので書いてみた。最初は配列に対する操作にしようと思ったけど、手っ取り早く使いたかったのでリストにした。loopマクロを使うとsumしてcollectするだけだから簡単に書けてよい。</p>
+<figure class="highlight cl"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="list">(<span class="title">defun</span> matrix-mul <span class="list">(<span class="title">a</span> b)</span></span></div><div class="line">  <span class="list">(<span class="title"><span class="built_in">let</span></span> <span class="list">(<span class="list">(<span class="title">n</span> <span class="list">(<span class="title">length</span> <span class="list">(<span class="title"><span class="built_in">nth</span></span><span class="number"> 0</span> a)</span>)</span>)</span></span></span></div><div class="line">        <span class="list">(<span class="title">m</span> <span class="list">(<span class="title">length</span> b)</span>)</span>)</div><div class="line">    <span class="list">(<span class="title"><span class="built_in">if</span></span> <span class="list">(<span class="title"><span class="built_in">=</span></span> n m)</span></span></div><div class="line">        <span class="list">(<span class="title"><span class="built_in">loop</span></span> for i below <span class="list">(<span class="title">length</span> a)</span></span></div><div class="line">          collect <span class="list">(<span class="title"><span class="built_in">loop</span></span> for j below <span class="list">(<span class="title">length</span> <span class="list">(<span class="title"><span class="built_in">nth</span></span><span class="number"> 0</span> b)</span>)</span></span></div><div class="line">                    collect <span class="list">(<span class="title"><span class="built_in">loop</span></span> for k below n</span></div><div class="line">                              sum <span class="list">(<span class="title"><span class="built_in">*</span></span> <span class="list">(<span class="title"><span class="built_in">nth</span></span> k <span class="list">(<span class="title"><span class="built_in">nth</span></span> i a)</span>)</span> <span class="list">(<span class="title"><span class="built_in">nth</span></span> j <span class="list">(<span class="title"><span class="built_in">nth</span></span> k b)</span>)</span>)</span>)))</div><div class="line">        <span class="list">(<span class="title">error</span> <span class="string">"Dimension error"</span>)</span>)))</div></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://tanakahx.github.io/blog/2015/02/02/matrix/" data-id="01sjbex23vca6g3w" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Lisp/">Lisp</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-migrate-from-octopress-to-hexo" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/blog/2015/01/25/migrate-from-octopress-to-hexo/" class="article-date">
@@ -91,11 +172,11 @@
 <p>まずOctopressで書いていたMarkdownの記事をHexo用のフォーマットに変換するスクリプトを書いた。</p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="shebang">#!/bin/sh</span></div><div class="line"><span class="keyword">for</span> i <span class="keyword">in</span> *.markdown; <span class="keyword">do</span></div><div class="line">    awk <span class="string">'!/^(layout|comments)/&&NR!=1{print $0}'</span> <span class="variable">$i</span> | sed <span class="string">'s/^categories/tags/g'</span> | sed <span class="string">'s/^title: *"\(.*\)"$/title: \1/g'</span> &gt; <span class="string">"<span class="variable">$i</span>"</span>.markdown.new</div><div class="line"><span class="keyword">done</span></div></pre></td></tr></table></figure>
 
-<p>Hexoは1行目に<code>---</code>は書かないらしいので削除している。また、Octopressのlayout, comments等のタグもHexoでは不要なので削除し、OctopressのcategoriesはHexoではtagsとして扱うようなので変換している。最後に、Octopressでつけていたtitleのダブルクォーテーションを削除している。無論、.markdown.newの内容が問題なさそうであれば.markdownにリネームしておく。</p>
-<p>また、Permalinkの設定をOctopressに合わせる必要がある。これはHexoの<code>_config.yml</code>に設定することで対応できる。</p>
+<p>Hexoは1行目に<code>---</code>は書かないらしいので削除している。また、Octopressのlayout, comments等のタグもHexoでは不要なので削除し、OctopressのcategoriesはHexoではtagsとして扱うようなので変換している。最後に、Octopressでつけていたtitleのダブルクォーテーションを削除している。無論、*.markdown.newの内容が問題なさそうであれば*.markdownにリネームしておく。</p>
+<p>また、各記事のPermalinkの設定もOctopressに合わせる必要があるが、これはHexoの<code>_config.yml</code>に設定することで対応できる。</p>
 <figure class="highlight yml"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="symbol">permalink:</span> blog/<span class="symbol">:year/</span><span class="symbol">:month/</span><span class="symbol">:day/</span><span class="symbol">:title/</span></div></pre></td></tr></table></figure>
 
-<p>先頭の<code>blog/</code>がミソで、最初これを設定していなかったが故にOctopressとPermalinkの構造が変わってしまい、記事へのリンクが切れてしまっていることに気づかなかった。</p>
+<p>先頭の<code>blog/</code>がミソで、最初これを設定していなかったが故にOctopressとPermalinkの構造が変わってしまい、記事へのリンクが切れてしまった。(そしてしばらく気がつかなかった…)</p>
 <p>テーマは<a href="https://github.com/xing5/hexo-theme-codeland" target="_blank" rel="external">Codeland</a>というテーマをforkして、右のサイドペインにAboutウィジェットが表示されるようにしてみた。forkしたテーマは<a href="https://github.com/tanakahx/hexo-theme-codeland" target="_blank" rel="external">Github</a>に登録しておいた。</p>
 
       
@@ -211,7 +292,7 @@
       <a data-url="http://tanakahx.github.io/blog/2015/01/06/hexo/" data-id="ec11ih0h8mxz16zn" class="article-share-link">Share</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/blog/">blog</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Blog/">Blog</a></li></ul>
 
     </footer>
   </div>
@@ -441,86 +522,6 @@
 
 
   
-    <article id="post-wordbank" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/blog/2014/08/18/wordbank/" class="article-date">
-  <time datetime="2014-08-18T03:52:43.000Z" itemprop="datePublished">Aug 18 2014</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blog/2014/08/18/wordbank/">Wordbank - 英和辞書用コマンドラインインタフェース</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>Common Lisp で何かプログラムを作ろうと思い立ち、<a href="https://github.com/tanakahx/wordbank" target="_blank" rel="external">Wordbank</a> というものを作りました。これはコマンドプロンプトに入力した英単語の意味を表示するだけのプログラムですが、辞書で引いた単語の履歴を覚えておいて、後で復習できるような目的で作成しています(履歴機能は未実装)。こだわったところは、SLIME 上でコンパイルしたり Quicklisp でロードできるようにしつつ、出来上がった Lisp のソースコードをそのままシェルからスクリプト実行できるようにした点です。複数ファイルから構成される場合にスクリプト実行する方法はもう少し工夫する必要がありそうです。</p>
-<p>問題の辞書ですが、<a href="https://dejizo.jp/dev/index.html" target="_blank" rel="external">デ辞蔵 REST版API</a> という Web サービス があったので利用させて頂きました。現状、API の動作確認用プロトタイプという段階であり、クエリを投げて結果を表示することしかできませんが、引き続き履歴機能の実装と検索機能の拡充を進めていく予定です。</p>
-<p>ちなみに HTTP リクエストには <a href="http://weitz.de/drakma/" target="_blank" rel="external">Drakma</a>、検索結果からの情報抽出には <a href="http://weitz.de/cl-ppcre/" target="_blank" rel="external">CL-PPCRE</a> という正規表現ライブラリを利用しました。Common Lisp では package.lisp にパッケージ情報やら asdf ファイルに依存関係やらを書くことが多いようですが、<a href="https://github.com/fukamachi/cl-project" target="_blank" rel="external">CL-Project</a> というスケルトン生成ツールはユニットテストの設定もしてくれるので便利でした。同様のツールで <a href="http://www.xach.com/lisp/quickproject/" target="_blank" rel="external">Quickproject</a> がありますが、こちらはユニットテストの設定はしないようです。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://tanakahx.github.io/blog/2014/08/18/wordbank/" data-id="aay54g57x9hucghp" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Lisp/">Lisp</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-get-output-stream-string" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/blog/2014/08/11/get-output-stream-string/" class="article-date">
-  <time datetime="2014-08-11T06:55:12.000Z" itemprop="datePublished">Aug 11 2014</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blog/2014/08/11/get-output-stream-string/">get-output-stream-string</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>get-output-stream-string は指定したストリームに出力された文字を出力順のまま文字列として返す関数である。関数が実行される際に、ストリーム中のすべての文字はクリアされる。Hyperspec の get-output-stream-string によると、 make-string-output-stream <em>以外</em>で生成したストリームに関しての動作は未定義とされている。Practical Common Lisp のサンプルプログラムに with-output-to-string で生成したストリームから get-output-stream-string で文字列として取り出しているコードがあるが、言語仕様上はよろしくないようだ。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://tanakahx.github.io/blog/2014/08/11/get-output-stream-string/" data-id="m5rtz7z6xebmnmr5" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Lisp/">Lisp</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
   
     <nav id="page-nav">
       <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
@@ -557,6 +558,14 @@
       <ul>
         
           <li>
+            <a href="/blog/2015/03/01/let-over-lambda/">Let Over Lambda</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2015/02/02/matrix/">行列積</a>
+          </li>
+        
+          <li>
             <a href="/blog/2015/01/25/migrate-from-octopress-to-hexo/">Migrate from Octopress to Hexo</a>
           </li>
         
@@ -568,14 +577,6 @@
             <a href="/blog/2015/01/06/hexo/">Hexo</a>
           </li>
         
-          <li>
-            <a href="/blog/2014/09/13/ningler-blog-application-sample-using-ningle/">ningler - Blog application sample using ningle</a>
-          </li>
-        
-          <li>
-            <a href="/blog/2014/09/01/effective-reading-a-file-in-common-lisp/">Common Lisp の効率的なファイル読み込み</a>
-          </li>
-        
       </ul>
     </div>
   </div>
@@ -585,7 +586,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/">Android</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blog/">Blog</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Emacs/">Emacs</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Git/">Git</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/">JavaScript</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Lisp/">Lisp</a><span class="tag-list-count">11</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Python/">Python</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/V8/">V8</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blog/">blog</a><span class="tag-list-count">1</span></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/">Android</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blog/">Blog</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Emacs/">Emacs</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Git/">Git</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/">JavaScript</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Lisp/">Lisp</a><span class="tag-list-count">13</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Python/">Python</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/V8/">V8</a><span class="tag-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -594,7 +595,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/09/">September 2014</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/08/">August 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/07/">July 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/06/">June 2014</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a><span class="archive-list-count">12</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/09/">September 2014</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/08/">August 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/07/">July 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/06/">June 2014</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a><span class="archive-list-count">12</span></li></ul>
     </div>
   </div>
 

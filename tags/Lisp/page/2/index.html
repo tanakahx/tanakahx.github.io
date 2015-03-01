@@ -65,6 +65,102 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-update-octopress-post" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2014/05/16/update-octopress-post/" class="article-date">
+  <time datetime="2014-05-16T14:53:58.000Z" itemprop="datePublished">May 16 2014</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2014/05/16/update-octopress-post/">Octopress の記事の日付を更新するスクリプト</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Octopress で rake new_post して新しい記事を作成すると、作成日がファイル名になり、ファイル中の date: にも作成した時点の日時が記録される。この日付は作成日ではなくどちらかというと deploy する日にしたいので、指定したファイル名とファイル中の date: を最新に更新するスクリプトを書いた。(SBCL 用)</p>
+<script src="https://gist.github.com/e98f96e8b2f7673ce741.js"></script>
+
+<p>実行方法は以下の通り。</p>
+<figure class="highlight console"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sbcl --script <span class="keyword">update</span>-md.lisp <span class="number">2014</span>-<span class="number">05</span>-<span class="number">14</span>-hoge.markdown</div></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://tanakahx.github.io/blog/2014/05/16/update-octopress-post/" data-id="e3i64splyq1ncf8r" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Lisp/">Lisp</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-sbcl-core-image-for-efficient-command-line-scripting" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2014/05/10/sbcl-core-image-for-efficient-command-line-scripting/" class="article-date">
+  <time datetime="2014-05-10T14:23:02.000Z" itemprop="datePublished">May 10 2014</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2014/05/10/sbcl-core-image-for-efficient-command-line-scripting/">スクリプト実行を効率化するための SBCL コアイメージの作成方法</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Common Lisp をスクリプト実行していて困るのが Quicklisp を使ったライブラリのロード方法。SLIME などの REPL 上で実行しているなら一度 ql:quickload してあげれば問題ないが、ターミナルからスクリプト実行する場合は毎回 ql:quickload が走るため時間がかかり効率が良くない。</p>
+<figure class="highlight cl"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="list">(<span class="title">load</span> <span class="string">"~/quicklisp/setup.lisp"</span>)</span></div><div class="line"><span class="list">(<span class="title">ql</span><span class="keyword">:quickload</span> <span class="string">"getopt"</span>)</span></div><div class="line"></div><div class="line"><span class="list">(<span class="title">use-package</span> <span class="keyword">:getopt</span>)</span></div><div class="line"><span class="comment">;; Codes using getopt package continue below</span></div></pre></td></tr></table></figure>
+
+<p>そこで、あらかじめ必要なライブラリをロードした状態の SBCL のコアイメージを生成して、その上でスクリプトを実行する方法を調べてみた。SBCL には <a href="http://www.sbcl.org/manual/index.html#Function-sb_002dext_003asave_002dlisp_002dand_002ddie sb-ext:save-lisp-and-die" target="_blank" rel="external">sb-ext:save-lisp-and-die</a> という関数でコアイメージを生成することができるので、以下のようなコアイメージ生成用のスクリプトを実行して sbcl-script という実行可能形式のファイルを生成する。</p>
+<figure class="highlight cl"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="list">(<span class="title">load</span> <span class="string">"~/quicklisp/setup.lisp"</span>)</span></div><div class="line"><span class="list">(<span class="title">ql</span><span class="keyword">:quickload</span> <span class="string">"getopt"</span>)</span></div><div class="line"><span class="list">(<span class="title">sb-ext</span><span class="keyword">:save-lisp-and-die</span> <span class="string">"sbcl-script"</span> <span class="keyword">:executable</span> <span class="literal">t</span>)</span></div></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight console"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="comment">$</span> <span class="comment">sbcl</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">script</span> <span class="comment">sbcl</span><span class="literal">-</span><span class="comment">script</span><span class="string">.</span><span class="comment">lisp</span></div></pre></td></tr></table></figure>
+
+<p>sbcl-script を生成した結果、ファイルサイズは 55509040 byte だった。結構でかい…。</p>
+<p>sbcl-script で実行するスクリプトはもはや ql:quickload する必要はないので、ライブラリを使用したコードを書いて気軽にスクリプト実行することができる。</p>
+<figure class="highlight cl"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">(use-<span class="keyword">package</span> :getopt)</div><div class="line">;; Codes <span class="keyword">using</span> getopt <span class="keyword">package</span> <span class="keyword">continue</span> below</div></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://tanakahx.github.io/blog/2014/05/10/sbcl-core-image-for-efficient-command-line-scripting/" data-id="r8xmaihz7yupo26t" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Lisp/">Lisp</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-getopt-in-common-lisp" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/blog/2014/05/10/getopt-in-common-lisp/" class="article-date">
@@ -158,6 +254,14 @@
       <ul>
         
           <li>
+            <a href="/blog/2015/03/01/let-over-lambda/">Let Over Lambda</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2015/02/02/matrix/">行列積</a>
+          </li>
+        
+          <li>
             <a href="/blog/2015/01/25/migrate-from-octopress-to-hexo/">Migrate from Octopress to Hexo</a>
           </li>
         
@@ -169,14 +273,6 @@
             <a href="/blog/2015/01/06/hexo/">Hexo</a>
           </li>
         
-          <li>
-            <a href="/blog/2014/09/13/ningler-blog-application-sample-using-ningle/">ningler - Blog application sample using ningle</a>
-          </li>
-        
-          <li>
-            <a href="/blog/2014/09/01/effective-reading-a-file-in-common-lisp/">Common Lisp の効率的なファイル読み込み</a>
-          </li>
-        
       </ul>
     </div>
   </div>
@@ -186,7 +282,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/">Android</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blog/">Blog</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Emacs/">Emacs</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Git/">Git</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/">JavaScript</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Lisp/">Lisp</a><span class="tag-list-count">11</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Python/">Python</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/V8/">V8</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blog/">blog</a><span class="tag-list-count">1</span></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/">Android</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blog/">Blog</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Emacs/">Emacs</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Git/">Git</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/">JavaScript</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Lisp/">Lisp</a><span class="tag-list-count">13</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Python/">Python</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/V8/">V8</a><span class="tag-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -195,7 +291,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/09/">September 2014</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/08/">August 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/07/">July 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/06/">June 2014</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a><span class="archive-list-count">12</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/09/">September 2014</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/08/">August 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/07/">July 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/06/">June 2014</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a><span class="archive-list-count">12</span></li></ul>
     </div>
   </div>
 
