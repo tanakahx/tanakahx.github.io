@@ -65,6 +65,176 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-effective-reading-a-file-in-common-lisp" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2014/09/01/effective-reading-a-file-in-common-lisp/" class="article-date">
+  <time datetime="2014-08-31T17:16:13.000Z" itemprop="datePublished">Sep 1 2014</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2014/09/01/effective-reading-a-file-in-common-lisp/">Common Lisp の効率的なファイル読み込み</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Common Lisp でファイルを読み込む方法は <a href="http://www.ymeme.com/slurping-a-file-common-lisp-83.html" target="_blank" rel="external">Slurping a file in Common Lisp</a> が参考になる。指定したファイルを読み込み、バッファ (配列) を返す関数はこんな感じ。実測はしていないが Perl スクリプト以上の速度が出るらしい。</p>
+<figure class="highlight cl"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="list">(<span class="title">defun</span> read-file <span class="list">(<span class="title">path</span>)</span></span></div><div class="line">  <span class="list">(<span class="title">with-open-file</span> <span class="list">(<span class="title">in</span> path)</span></span></div><div class="line">    <span class="list">(<span class="title">let</span> <span class="list">(<span class="list">(<span class="title">seq</span> <span class="list">(<span class="title">make-array</span> <span class="list">(<span class="title">file-length</span> in)</span> <span class="keyword">:element-type</span> <span class="quoted">'character</span> <span class="keyword">:fill-pointer</span> <span class="literal">t</span>)</span>)</span>)</span></span></div><div class="line">      <span class="list">(<span class="title">setf</span> <span class="list">(<span class="title">fill-pointer</span> seq)</span> <span class="list">(<span class="title">read-sequence</span> seq in)</span>)</span></div><div class="line">      seq)))</div></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://tanakahx.github.io/blog/2014/09/01/effective-reading-a-file-in-common-lisp/" data-id="suz1i8yiti2ffp1m" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Lisp/">Lisp</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-wordbank" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2014/08/25/wordbank/" class="article-date">
+  <time datetime="2014-08-24T16:11:46.000Z" itemprop="datePublished">Aug 25 2014</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2014/08/25/wordbank/">Wordbank</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Wordbank に検索回数順に表示するコマンド <code>:t</code> を追加した。何回も検索している単語はおそらく覚えにくい単語だと思うので、これで自分の苦手単語をチェックしてみよう。</p>
+<p>DB から検索回数の多い順に N 個の要素を取り出す処理 (nthmost) は、DB のすべての要素をソートした上で上位 N 個を取り出すという非常にナイーブな実装にしている。これは On Lisp にあるように、N が DB の要素数によらず小さい定数である場合は、上位 N 個の要素を記憶しながら DB のすべての要素を調べあげ、記憶していた上位 N 個をソートして返す、というアルゴリズムの方が効率がよい。DB のサイズが大きくなってパフォーマンスが悪くなってきたら対応してみるかな。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://tanakahx.github.io/blog/2014/08/25/wordbank/" data-id="rqqm99162k8ghi30" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Lisp/">Lisp</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-android-studio-0-dot-8-6" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2014/08/23/android-studio-0-dot-8-6/" class="article-date">
+  <time datetime="2014-08-22T15:09:23.000Z" itemprop="datePublished">Aug 23 2014</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2014/08/23/android-studio-0-dot-8-6/">Android Studio 0.8.6</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Android Studio がいつの間にか 0.8.1 から 0.8.6 にアップデートされていた。以前、Android Studio 0.8.1 で作成したプログラムを実機で動かそうとしたときに <code>build.gradle</code> の設定を<a href="/blog/2014/07/09/android-studio-0-dot-8-1/">このように</a>設定していた。</p>
+<p>0.8.6 にアップデートしたついでに設定方法を見直してみた。まずプロジェクトを作成するときに <code>Minimum SDK</code> の項目に <code>API 19: Android 4.4 (KitKat)</code> を指定する (最新は Android L であるがこれを選択するとうまくいかなかった)。API 15 の実機で動作させるため、<code>build.gradle</code> の設定は以下のようにした。</p>
+<figure class="highlight console"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="title">apply</span> plugin: <span class="string">'com.android.application'</span></div><div class="line"></div><div class="line">android {</div><div class="line">    <span class="title">compileSdkVersion</span> <span class="number">19</span></div><div class="line">    buildToolsVersion <span class="string">"20.0.0"</span></div><div class="line"></div><div class="line">    defaultConfig {</div><div class="line">        <span class="title">applicationId</span> <span class="string">"com.example.tanaka.myapplication"</span></div><div class="line">        minSdkVersion <span class="number">15</span> // Changed this value from <span class="number">19</span> to <span class="number">15</span></div><div class="line">        targetSdkVersion <span class="number">19</span></div><div class="line">        versionCode <span class="number">1</span></div><div class="line">        versionName <span class="string">"1.0"</span></div><div class="line">    }</div><div class="line">    buildTypes {</div><div class="line">        <span class="title">release</span> {</div><div class="line">            <span class="title">runProguard</span> <span class="built_in">false</span></div><div class="line">            proguardFiles getDefaultProguardFile(<span class="string">'proguard-android.txt'</span>), <span class="string">'proguard-rules.pro'</span></div><div class="line">        }</div><div class="line">    }</div><div class="line">}</div><div class="line"></div><div class="line">dependencies {</div><div class="line">    <span class="title">compile</span> fileTree(dir: <span class="string">'libs'</span>, include: [<span class="string">'*.jar'</span>])</div><div class="line">}</div></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://tanakahx.github.io/blog/2014/08/23/android-studio-0-dot-8-6/" data-id="fs6ruievfj3lk7ub" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Android/">Android</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-wordbank" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2014/08/19/wordbank/" class="article-date">
+  <time datetime="2014-08-19T14:53:03.000Z" itemprop="datePublished">Aug 19 2014</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blog/2014/08/19/wordbank/">Wordbank</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Wordbank の検索機能を強化してみた。デ辞蔵の API では検索ワードから始まる単語が複数返されるので、検索ワードが検索結果の第一候補と一致した場合、もしくは検索結果が 1 件のみの場合はそのまま意味を表示し、その他の場合は複数の検索結果からユーザが選択するようにした。また、検索ワードの語尾に <code>*</code> を指定することで、第一候補と一致した場合でも複数の検索結果を表示するようなインタフェースにした。</p>
+<p>さらに、一度調べた検索結果はローカルの DB にキャッシュするようにして、次回以降は高速に検索できるようにした。無駄に検索クエリを投げないので Web サービスにも優しい。</p>
+<p>コマンドは vi ライクにしている。<code>:q!</code> とか <code>:wq</code> とかも欲しいけど現状は未対応。</p>
+<ul>
+<li><code>:q</code> プログラムを終了</li>
+<li><code>:w</code> ローカル DB を保存</li>
+</ul>
+<p>あとは単語ごとに検索回数を記録してソートして表示できるようにすれば、とりあえず欲しかった機能は満たされるかな。</p>
+<p>ちょっと困っているのがコマンド入力インタフェースの実装。検索ワードを入力する状態と、検索結果から選択する状態があるため、状態を持ったクロージャがあれば何とかなるかと思っていたが、第一候補に一致した場合の検索結果の一発表示やコマンドの追加が重なって次第にカオスな感じになってきており、なんか違うなーという感じ。あるべき姿はこうではなく、インタフェースの改良やコマンドの追加に対して柔軟に対応できる拡張性のある何か。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://tanakahx.github.io/blog/2014/08/19/wordbank/" data-id="57wwi7vtbg4n5jab" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Lisp/">Lisp</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-wordbank" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/blog/2014/08/18/wordbank/" class="article-date">
@@ -385,225 +555,9 @@
 
 
   
-    <article id="post-git-create-new-branch-without-logs" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/blog/2014/06/07/git-create-new-branch-without-logs/" class="article-date">
-  <time datetime="2014-06-07T06:06:33.000Z" itemprop="datePublished">Jun 7 2014</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blog/2014/06/07/git-create-new-branch-without-logs/">Git の履歴を削除して新しいブランチを作成する方法</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>Git の履歴をすべて削除して新しいブランチからリポジトリ管理を始めたい場合、まずは以下のように git checkout コマンドに —orphan オプションをつけて空のブランチを作成する。</p>
-<figure class="highlight console"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="comment">$</span> <span class="comment">git</span> <span class="comment">checkout</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">orphan</span> <span class="comment">tmp</span></div></pre></td></tr></table></figure>
-
-<p>この状態で、いつものように Git 管理下におきたいファイルをステージングして commit する。何も commit していない状態だと git branch を実行しても tmp ブランチは表示されないようだ。</p>
-<figure class="highlight console"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="variable">$ </span>git add .</div><div class="line"><span class="variable">$ </span>git commit -m <span class="string">"first commmit"</span></div></pre></td></tr></table></figure>
-
-<p>この時点で master と履歴が 1 つの tmp というブランチが存在することになる。あとは master ブランチを tmp ブランチで push して履歴をすべて削除した master ブランチに改変する。</p>
-<figure class="highlight console"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ push <span class="operator">-f</span> . tmp:master</div></pre></td></tr></table></figure>
-
-<h2 id="別のリモートリポジトリに_push">別のリモートリポジトリに push</h2>
-<p>GitHub から clone したリポジトリを履歴を削除した上で BitBucket で新たに管理を開始したい場合などは、まず上記の手順で履歴を削除したリポジトリを作成した後、以下のように origin の url を変更する。</p>
-<figure class="highlight console"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="variable">$ </span>git checkout master <span class="comment"># カレントブランチを master ブランチに戻す</span></div><div class="line"><span class="variable">$ </span>git remote set_url origin git<span class="variable">@bitbecket</span>.<span class="symbol">com:</span>username/repository.git</div></pre></td></tr></table></figure>
-
-<p>あとはリモートリポジトリに対して push すればよい。</p>
-<figure class="highlight console"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="variable">$ </span>git push origin master</div></pre></td></tr></table></figure>
-
-<p>最初に作成した orphan なリポジトリはもはや不要なので削除してよい。</p>
-<figure class="highlight console"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ git branch <span class="operator">-d</span> tmp</div></pre></td></tr></table></figure>
-
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://tanakahx.github.io/blog/2014/06/07/git-create-new-branch-without-logs/" data-id="l2j64mny1wqan6zf" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Git/">Git</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-hello-world-with-atom-shell" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/blog/2014/06/02/hello-world-with-atom-shell/" class="article-date">
-  <time datetime="2014-06-02T14:24:57.000Z" itemprop="datePublished">Jun 2 2014</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blog/2014/06/02/hello-world-with-atom-shell/">Atom Shell で Hello world</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>Atom Shell を使っておそらく本来の使われ方ではないプログラムを作成してみる。以下のような Node.js プログラムを普通に実行することができる模様。</p>
-<figure class="highlight js"><figcaption><span>hello.js</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">console</span>.log(<span class="string">"hello, world"</span>);</div><div class="line">process.exit(<span class="number">0</span>);</div></pre></td></tr></table></figure>
-
-<p>最後の process.exit(0) を書かないとプロセスが終了しない。 実行するときは引数に JavaScript ファイルを指定すればよい。</p>
-<figure class="highlight console"><figcaption><span>実行結果</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ .<span class="regexp">/out/</span>Release<span class="regexp">/Atom.app/</span>Contents<span class="regexp">/MacOS/</span>Atom hello.js</div><div class="line">hello, world</div></pre></td></tr></table></figure>
-
-<p>require でロードしたモジュールも普通に使うことができる。</p>
-<figure class="highlight js"><figcaption><span>cpus.js</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> os = <span class="built_in">require</span>(<span class="string">'os'</span>);</div><div class="line"><span class="built_in">console</span>.log(os.cpus());</div><div class="line">process.exit(<span class="number">0</span>);</div></pre></td></tr></table></figure>
-
-
-
-<figure class="highlight console"><figcaption><span>実行結果</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">$ .<span class="regexp">/out/</span>Release<span class="regexp">/Atom.app/</span>Contents<span class="regexp">/MacOS/</span>Atom cpus.js</div><div class="line">[ { model: <span class="string">'Intel(R) Core(TM) i5-3317U CPU @ 1.70GHz'</span>,</div><div class="line">    speed: <span class="number">1700</span>,</div><div class="line">    <span class="keyword">times</span>: { user: <span class="number">4692350</span>, nice: <span class="number">0</span>, sys: <span class="number">3321620</span>, idle: <span class="number">38701300</span>, irq: <span class="number">0</span> } },</div><div class="line">  { model: <span class="string">'Intel(R) Core(TM) i5-3317U CPU @ 1.70GHz'</span>,</div><div class="line">    speed: <span class="number">1700</span>,</div><div class="line">    <span class="keyword">times</span>: { user: <span class="number">2480960</span>, nice: <span class="number">0</span>, sys: <span class="number">1154690</span>, idle: <span class="number">43077500</span>, irq: <span class="number">0</span> } },</div><div class="line">  { model: <span class="string">'Intel(R) Core(TM) i5-3317U CPU @ 1.70GHz'</span>,</div><div class="line">    speed: <span class="number">1700</span>,</div><div class="line">    <span class="keyword">times</span>: { user: <span class="number">4196740</span>, nice: <span class="number">0</span>, sys: <span class="number">2200760</span>, idle: <span class="number">40315740</span>, irq: <span class="number">0</span> } },</div><div class="line">  { model: <span class="string">'Intel(R) Core(TM) i5-3317U CPU @ 1.70GHz'</span>,</div><div class="line">    speed: <span class="number">1700</span>,</div><div class="line">    <span class="keyword">times</span>: { user: <span class="number">2333780</span>, nice: <span class="number">0</span>, sys: <span class="number">1036880</span>, idle: <span class="number">43342400</span>, irq: <span class="number">0</span> } } ]</div></pre></td></tr></table></figure>
-
-<p>本来のデスクトップアプリケーションを目的としたプログラムのチュートリアルは下記ドキュメントにある。</p>
-<ul>
-<li><a href="https://github.com/atom/atom-shell/blob/master/docs/tutorial/quick-start.md" target="_blank" rel="external">Quick start</a></li>
-</ul>
-<p>ちょっと試してみたけど、main.js から HTML の DOM を操作することはできないんだろうか。よくわからない…。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://tanakahx.github.io/blog/2014/06/02/hello-world-with-atom-shell/" data-id="gptolwb7d5fa590l" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JavaScript/">JavaScript</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-how-to-build-atom-shell" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/blog/2014/05/26/how-to-build-atom-shell/" class="article-date">
-  <time datetime="2014-05-26T14:54:50.000Z" itemprop="datePublished">May 26 2014</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blog/2014/05/26/how-to-build-atom-shell/">Atom Shell をビルドする</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>GitHub が最近オープンソースで公開した <a href="https://atom.io" target="_blank" rel="external">Atom</a> というエディタが話題になっているが、それに使われているフレームワークが <a href="https://github.com/atom/atom-shell" target="_blank" rel="external">Atom Shell</a> というものらしい。GitHub の README.md によると JavaScript や HTML や CSS といった Web テクノロジでクロスプラットフォームなデスクトップアプリケーションが作れるフレームワークなのだそうだ。以前から Microsoft Windows でも HTA (HTML Application) という HTML + JScript/VBScript でデスクトップアプリケーションが作れる技術があったが、あのノリなのかもしれない。もっとも HTA は Internet Explorer 限定だったけど。</p>
-<p>試しにソースコードを clone してビルドしてみる。とはいっても<a href="https://github.com/atom/atom-shell/tree/master/docs" target="_blank" rel="external">ドキュメント</a>の通りに進めるだけだった。まずはソースツリーを clone する。</p>
-<figure class="highlight console"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ git clone http<span class="variable">s:</span>//github.<span class="keyword">com</span>/atom/atom-<span class="keyword">shell</span>.git</div><div class="line">$ <span class="keyword">cd</span> atom-<span class="keyword">shell</span></div></pre></td></tr></table></figure>
-
-<p>ビルドに必要なものはすべて bootstrap.py を実行することでそろえてくれるようだ。</p>
-<figure class="highlight console"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ ./script/bootstrap.<span class="keyword">py</span></div></pre></td></tr></table></figure>
-
-<p>あとは build.py を実行するだけ。</p>
-<figure class="highlight console"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ ./script/build.<span class="keyword">py</span></div></pre></td></tr></table></figure>
-
-<p>最後に test.py を実行して完了！</p>
-<figure class="highlight console"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ <span class="keyword">cd</span> ./script/test.<span class="keyword">py</span></div></pre></td></tr></table></figure>
-
-<p>out/Release/Atom.app/Contents/MacOS/Atom に実行ファイルが生成される。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://tanakahx.github.io/blog/2014/05/26/how-to-build-atom-shell/" data-id="mf0nwdqn4la6vl5m" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JavaScript/">JavaScript</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-open-and-read-in-python" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/blog/2014/05/20/open-and-read-in-python/" class="article-date">
-  <time datetime="2014-05-20T14:30:42.000Z" itemprop="datePublished">May 20 2014</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blog/2014/05/20/open-and-read-in-python/">Python でファイルを読むとき</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>Python でファイルを読むときはいつも</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">f = open(<span class="string">"file.txt"</span>)</div><div class="line">line = f.readline()</div><div class="line"><span class="keyword">while</span> line:</div><div class="line">    <span class="keyword">print</span> line</div><div class="line">    line = f.readline()</div><div class="line">f.close()</div></pre></td></tr></table></figure>
-
-<p>のように書いていたけど、こんな書き方しなくても、</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">f = open(<span class="string">"file.txt"</span>)</div><div class="line"><span class="keyword">for</span> line <span class="keyword">in</span> f:</div><div class="line">    <span class="keyword">print</span> line</div><div class="line">f.close()</div></pre></td></tr></table></figure>
-
-<p>これでよかったんだ…。効率は良くないかもしれないけど、もっと短く書ける。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">for</span> line <span class="keyword">in</span> open(<span class="string">"file.txt"</span>):</div><div class="line">    <span class="keyword">print</span> line</div></pre></td></tr></table></figure>
-
-<p>でも Python 2.6 からは with 構文使うのがいいらしい。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">with</span> open(<span class="string">"file.txt"</span>) <span class="keyword">as</span> f:</div><div class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> f:</div><div class="line">        <span class="keyword">print</span> line</div></pre></td></tr></table></figure>
-
-<p>これなら with を抜けた後に自動的に f.close() されるようだ。まさに Lisp の with-open-file マクロだな。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://tanakahx.github.io/blog/2014/05/20/open-and-read-in-python/" data-id="9vn86652w26cs941" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Python/">Python</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
   
     <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/3/">Next &raquo;</a>
+      <a class="extend prev" rel="prev" href="/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/3/">Next &raquo;</a>
     </nav>
   
 </section>
@@ -637,23 +591,23 @@
       <ul>
         
           <li>
+            <a href="/blog/2015/05/03/unix-v6/">UNIX V6 memo</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2015/04/05/cl-launch/">cl-launch</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2015/03/07/generating-bingo-card-problem/">ビンゴカード作成問題 (Common Lisp)</a>
+          </li>
+        
+          <li>
             <a href="/blog/2015/03/01/let-over-lambda/">Let Over Lambda</a>
           </li>
         
           <li>
             <a href="/blog/2015/02/02/matrix/">行列積</a>
-          </li>
-        
-          <li>
-            <a href="/blog/2015/01/25/migrate-from-octopress-to-hexo/">Migrate from Octopress to Hexo</a>
-          </li>
-        
-          <li>
-            <a href="/blog/2015/01/07/v8/">V8</a>
-          </li>
-        
-          <li>
-            <a href="/blog/2015/01/06/hexo/">Hexo</a>
           </li>
         
       </ul>
@@ -665,7 +619,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/">Android</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blog/">Blog</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Emacs/">Emacs</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Git/">Git</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/">JavaScript</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Lisp/">Lisp</a><span class="tag-list-count">13</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Python/">Python</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/V8/">V8</a><span class="tag-list-count">1</span></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/">Android</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blog/">Blog</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Emacs/">Emacs</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Git/">Git</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/">JavaScript</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Lisp/">Lisp</a><span class="tag-list-count">16</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Python/">Python</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UNIX/">UNIX</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/V8/">V8</a><span class="tag-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -674,7 +628,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/09/">September 2014</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/08/">August 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/07/">July 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/06/">June 2014</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a><span class="archive-list-count">12</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/09/">September 2014</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/08/">August 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/07/">July 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/06/">June 2014</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a><span class="archive-list-count">12</span></li></ul>
     </div>
   </div>
 
@@ -688,7 +642,7 @@
   <div class="outer">
     <div id="footer-info" class="inner">
       <a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc/4.0/88x31.png" /></a></br>
-      &copy; 2015 Hiroyuki Tanaka<br>
+      &copy; 2020 Hiroyuki Tanaka<br>
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>

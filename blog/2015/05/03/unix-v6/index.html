@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>UNIX V6 memo | H.Tanaka&#39;s Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="ソースコード
+Dennis_v6よりもKen_Wellsch_v6の方がLions本のバージョンに近い。
+ソースコードは以下のリンクから入手する。
+
+http://orangetide.com/Unix/
+
+PDP-11
+CPU
+CPUは8つの16bit汎用レジスタをもつ。
+
+r0, r1: アキュムレータ
+r2, r3, r4: 手続き呼び出しのローカル変数
+r5: 環境ポインタ
+r6: スタッ">
+<meta property="og:type" content="article">
+<meta property="og:title" content="UNIX V6 memo">
+<meta property="og:url" content="http://tanakahx.github.io/blog/2015/05/03/unix-v6/">
+<meta property="og:site_name" content="H.Tanaka's Blog">
+<meta property="og:description" content="ソースコード
+Dennis_v6よりもKen_Wellsch_v6の方がLions本のバージョンに近い。
+ソースコードは以下のリンクから入手する。
+
+http://orangetide.com/Unix/
+
+PDP-11
+CPU
+CPUは8つの16bit汎用レジスタをもつ。
+
+r0, r1: アキュムレータ
+r2, r3, r4: 手続き呼び出しのローカル変数
+r5: 環境ポインタ
+r6: スタッ">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="UNIX V6 memo">
+<meta name="twitter:description" content="ソースコード
+Dennis_v6よりもKen_Wellsch_v6の方がLions本のバージョンに近い。
+ソースコードは以下のリンクから入手する。
+
+http://orangetide.com/Unix/
+
+PDP-11
+CPU
+CPUは8つの16bit汎用レジスタをもつ。
+
+r0, r1: アキュムレータ
+r2, r3, r4: 手続き呼び出しのローカル変数
+r5: 環境ポインタ
+r6: スタッ">
+
+  
+    <link rel="alternative" href="/atom.xml" title="H.Tanaka&#39;s Blog" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+  
+  <link href="//fonts.googleapis.com/css?family=Inconsolata:400,700|Open+Sans:700,400" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+
+  
+
+</head>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <div id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <div id="header-title">
+        <h1 id="logo-wrap">
+          <a href="/" id="logo">H.Tanaka&#39;s Blog
+          
+              <span id="subtitle">Tech notes on software development</span>
+          
+          </a>
+        </h1>
+      </div>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><input type="submit" value="&#xF002;" class="search-form-submit"><input type="hidden" name="q" value="site:http://tanakahx.github.io"></form>
+      </div>
+    </div>
+  </div>
+</div>
+      <div class="outer">
+        <section id="main"><article id="post-unix-v6" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2015/05/03/unix-v6/" class="article-date">
+  <time datetime="2015-05-03T08:41:42.000Z" itemprop="datePublished">May 3 2015</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      UNIX V6 memo
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="ソースコード">ソースコード</h1>
+<p>Dennis_v6よりもKen_Wellsch_v6の方がLions本のバージョンに近い。</p>
+<p>ソースコードは以下のリンクから入手する。</p>
+<ul>
+<li><a href="http://orangetide.com/Unix/" target="_blank" rel="external">http://orangetide.com/Unix/</a></li>
+</ul>
+<h1 id="PDP-11">PDP-11</h1>
+<h2 id="CPU">CPU</h2>
+<p>CPUは8つの16bit汎用レジスタをもつ。</p>
+<ul>
+<li>r0, r1: アキュムレータ</li>
+<li>r2, r3, r4: 手続き呼び出しのローカル変数</li>
+<li>r5: 環境ポインタ</li>
+<li>r6: スタックポインタ(SP)<ul>
+<li>r6はプロセッサのモードに応じてカーネルスタックかユーザスタックのいずれかを指すため、2つのレジスタを切り替えている。</li>
+</ul>
+</li>
+<li>r7: プログラムカウンタ(PC)</li>
+</ul>
+<h2 id="PSW">PSW</h2>
+<ul>
+<li>15, 14: 現在のモード</li>
+<li>13, 12: 以前のモード</li>
+<li>7, 6, 5: 優先度(0: 低い、7: 高い、この優先度よりも低い割り込みは受け付けられない。)</li>
+<li>4: T(トラップ)</li>
+<li>3: N(負フラグ)</li>
+<li>2: Z(ゼロフラグ)</li>
+<li>1: V(オーバーフローフラグ)</li>
+<li>0: C(キャリーフラグ)</li>
+</ul>
+<h2 id="メモリ管理">メモリ管理</h2>
+<p>APR(Active Page Ragister)はPAR(Page Address Register)+PDR(Page Description Register)のペア8個から構成される。これをカーネルモードとユーザモードで使い分けるために2セット持っている。どちらのAPRを使うかはPSWの状態で決定される。</p>
+<h2 id="仮想アドレスから物理アドレスへの変換">仮想アドレスから物理アドレスへの変換</h2>
+<p>PDP-11は16bitの仮想アドレス空間を18bitの物理アドレス空間にマッピングする。<br>仮想アドレスのbit15-13はAPF(Active Page Field)と呼ばれ、この値に応じてAPR0-APR7のうちの一つを選択する。(ただし、カーネルモードとユーザモードのどちらのAPRを使うかはPSWによって決定される。)<br>仮想アドレスのbit5-0は物理アドレスでもそのままbit5-0として使われる。したがって、この64byte分は仮想アドレスの最小ブロックサイズとなる。仮想アドレスの残りのbit12-6はこのページのブロック番号として扱われる。このブロック番号は選択されたAPRのPARに設定しているブロック開始アドレス(PAF)からのオフセットとみなされ、PAFに加算された結果、物理アドレスbit17-6に使われる。</p>
+<h2 id="初期状態">初期状態</h2>
+<p>システムはカーネルモードで起動し、メモリ管理は無効になっている。この場合、0~56KBの仮想アドレスはそのまま物理アドレスにマッピングされる。しかし、仮想アドレスの0160000~0177777は物理アドレスの0760000~0777777にマッピングされる。メモリマップ上のこの領域はプロセッサや周辺機器のレジスタが割り当てられている。</p>
+<h2 id="SSR0">SSR0</h2>
+<p>SSR0(177572): Status Register 0</p>
+<h2 id="m40">m40</h2>
+<p>システムセグメントの初期化</p>
+<ul>
+<li>KISA0(172340): Kernel I Space Address Register 0 (PARに相当)</li>
+<li>KISD0(172300): Kernel I Space Description Register 0 (PDRに相当)</li>
+<li>設定値<ul>
+<li>77406 (111 111 100 000 110)</li>
+<li>128block(4Kword), 上方拡張, Read/Writeアクセス可</li>
+</ul>
+</li>
+</ul>
+<h2 id="main">main</h2>
+<p>m40.sの_ka6: KISA6(172354)より、ka6の値は172354になっているため、<em>ka6と書いた場合は、KISA6のレジスタの値を表す。</em>ka6+16以降の物理アドレスをヒープ領域として使うために次のclearsegで0クリアし、mallocで割り当てられるようにcoremapで管理する。</p>
+<p>mainはnewprocによりプロセス0をプロセス1にコピーする。プロセス0はそのままschedに突入するが、sleepし（ <em>ここの理由はまだ不明</em> ）、swtchが実行されることによりプロセス1に制御が移る。</p>
+<p>プロセス1はexpandによりデータ＋スタック領域を拡張する。続いてユーザ空間用のページング(セグメント)の設定をするためestaburを実行する。estaburではあらかじめu構造体にu_uisaとu_uisdのプロトタイプ設定を構築した後、最後の処理としてsuregを実行することでハードウェアレジスタにプロトタイプ設定値を反映する。</p>
+<h2 id="clearseg">clearseg</h2>
+<p>引数で渡したアドレスをUISA0に設定することで、ページ0の物理アドレスを設定する。mtpiを使ってカーネルスタックに積んだ0値をユーザ空間のページ0に転送することで、ユーザ空間を32word分0クリアする。</p>
+<h2 id="swtch">swtch</h2>
+<h3 id="savu">savu</h3>
+<p>スタックポインタと環境ポインタを引数で指定したu構造体メンバに保存する。</p>
+<figure class="highlight asm"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="label">_savu:</span></div><div class="line">	bis	<span class="number">$340</span>,PS    <span class="comment">; 優先度を7に設定(すべての割り込みを禁止)</span></div><div class="line">	<span class="keyword">mov</span>	(<span class="literal">sp</span>)+,<span class="literal">r1</span>   <span class="comment">; リターンアドレスをr1に設定</span></div><div class="line">	<span class="keyword">mov</span>	(<span class="literal">sp</span>),<span class="literal">r0</span>    <span class="comment">; 仮引数(u.rsavのアドレス)をr0に設定</span></div><div class="line">	<span class="keyword">mov</span>	<span class="literal">sp</span>,(<span class="literal">r0</span>)+   <span class="comment">; spをu.rsav[0]に設定</span></div><div class="line">	<span class="keyword">mov</span>	<span class="literal">r5</span>,(<span class="literal">r0</span>)+   <span class="comment">; r5をu.rsav[1]に設定</span></div><div class="line">	bic	<span class="number">$340</span>,PS    <span class="comment">; 優先度を0に設定(すべての割り込みを許可)</span></div><div class="line">	<span class="keyword">jmp</span>	(<span class="literal">r1</span>)       <span class="comment">; 呼び出し元に戻る</span></div></pre></td></tr></table></figure>
+
+<h3 id="retu">retu</h3>
+<p>カーネル空間のページ6が指定した物理アドレスを指すようにKISA6を設定した上で、u構造体からスタックポインタと環境ポインタを復帰させる。</p>
+<figure class="highlight asm"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="label">_retu:</span></div><div class="line">	bis	<span class="number">$340</span>,PS    <span class="comment">; 優先度を7に設定(すべての割り込みを禁止)</span></div><div class="line">	<span class="keyword">mov</span>	(<span class="literal">sp</span>)+,<span class="literal">r1</span>   <span class="comment">; リターンアドレスをr1に設定</span></div><div class="line">	<span class="keyword">mov</span>	(<span class="literal">sp</span>),KISA6 <span class="comment">; 仮引数(proc[0].p_addr)の値をKISA6に設定</span></div><div class="line">	<span class="keyword">mov</span>	$_u,<span class="literal">r0</span>     <span class="comment">; u構造体のアドレスをr0に設定</span></div><div class="line"><span class="number">1</span>:</div><div class="line">	<span class="keyword">mov</span>	(<span class="literal">r0</span>)+,<span class="literal">sp</span>   <span class="comment">; u.rsav[0]からspを復帰</span></div><div class="line">	<span class="keyword">mov</span>	(<span class="literal">r0</span>)+,<span class="literal">r5</span>   <span class="comment">; u.rsav[1]からr5を復帰</span></div><div class="line">	bic	<span class="number">$340</span>,PS    <span class="comment">; 優先度を0に設定(すべての割り込みを許可)</span></div><div class="line">	<span class="keyword">jmp</span>	(<span class="literal">r1</span>)       <span class="comment">; 呼び出し元に戻る</span></div></pre></td></tr></table></figure>
+
+<p>mainでcoremapに登録したヒープ領域はnewprocで新しいプロセスを生成するときに割り当てられ、proc構造体のp_addrに格納される。プロセスを切り替える場合、p_addrをretuに渡すことでKISA6が書き換えられ、カーネルモードにおいてu構造体が指す仮想0140000番地の示す物理アドレスがp_addrに変更される。</p>
+<h3 id="aretu">aretu</h3>
+<p>引数に与えたアドレスからスタックポインタと環境ポインタを復帰させる。</p>
+<h3 id="estabur">estabur</h3>
+<p>suregで設定するためのプロトタイプとなるページ設定を構築する。データセグメントはユーザモードのデータ領域＋スタック領域に加えて、カーネルモードで使用するu構造体＋カーネルスタック領域も含むことに注意する。</p>
+<h3 id="sureg">sureg</h3>
+<p>ユーザ空間のページ設定をするために、u構造体に設定しているプロトタイプ(uisa, uisd)をもとにセグメントレジスタを設定する。これによりスイッチ後のプロセスをユーザ空間で実行することが出来る。</p>
+<h1 id="第8章_プロセス管理">第8章 プロセス管理</h1>
+<h2 id="setpri(2156)">setpri(2156)</h2>
+<p>proc構造体を受け取り、優先度を更新する。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="attribute">優先度 </span>=<span class="string"> min(127, CPU時間 + PUSER + NICE値)</span></div></pre></td></tr></table></figure>
+
+<h2 id="sleep(2066)">sleep(2066)</h2>
+<p>次の2つのパラメータを引数にとる。</p>
+<ul>
+<li>sleepする理由(chan)</li>
+<li>目覚めてスケジューリングキューに入る時の優先度(pri)</li>
+</ul>
+<p>priとして負数が与えられた場合は、シグナルが起きても起こさないことを表す。</p>
+<h2 id="wakeup(2113)">wakeup(2113)</h2>
+<p>引数に与えたchanでsleepしているプロセスに対してsetrunを実行する。</p>
+<h2 id="setrun(2134)">setrun(2134)</h2>
+<p>プロセスを実行中に設定する。その優先度がカレントプロセスよりも高い場合は、再スケジューリングが必要であることを示すrunrunをセットする。</p>
+<p>sleep(&amp;runout)はsched(プロセス0)のみが実行するため、</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span>(runout != <span class="number">0</span> && (rp-&gt;p_flag&SLOAD) == <span class="number">0</span>) {</div><div class="line">  runout = <span class="number">0</span>;</div><div class="line">  wakeup(&runout);</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>におけるwakeup(&amp;runout)はプロセス0に対するsetrun(&amp;proc[0])と等価である。</p>
+<h2 id="expand(2268)">expand(2268)</h2>
+<p>データ＋スタック領域のサイズを変更する。縮小する場合は余った領域をmfreeする。拡大する場合は必要な領域をmallocして、あたらし領域へデータをコピーする(<em>スタック領域はexpandの呼び出し側が調整する</em>)。mallocで新しい領域を確保できない場合は、利用可能になるまでxswapによりスワップアウトする。xswap呼び出しの第二引数は非零なので、コアイメージは自由リストに追加されて解放され、SLOADフラグはクリアされる。しかし、このプロセスは続くswtchのretuでスケジューラのスタックに切り替えるまで解放されたコアイメージのスタック上で動作することに注意する。</p>
+<h1 id="第9章_ハードウェア割り込みとトラップ">第9章 ハードウェア割り込みとトラップ</h1>
+<p>割り込みが発生するとUNIXはカーネルモードに移行し、PCとPSレジスタはカーネルスタックに積まれる。割り込みルーチンは割り込みベクタにより決定される。割り込みベクタの最初のワードは割り込みルーチンのアドレスであり、次のワードは新しいPSレジスタの値である。</p>
+<p>割り込みから復帰する場合には、カーネルスタックに積んだPCとPSを取り出して再ロードする。</p>
+<h2 id="優先度">優先度</h2>
+<p>PDP11の割り込み優先度は4,5,6,7に制限されている。(1,2,3はUNIBUSでサポートされていないらしい)</p>
+<h2 id="割り込み優先度">割り込み優先度</h2>
+<p>UNIXでは割り込み処理ルーチンは割り込み優先度と同じ優先度で実行される。つまり、ある割り込み処理ルーチンを実行している時は、それ<em>以下</em>の優先度が低い割り込みが起こったとしても無視される。</p>
+<h2 id="割り込みハンドラのための規則">割り込みハンドラのための規則</h2>
+<p>ユーザプロセスmが割り込み待ちの間、ユーザプロセスn実行中に割り込みが入った場合、カーネルプロセスnはその割り込みとは無関係であるにもかかわらず、割り込みハンドラの処理を行い、その割り込みを取り扱うことに注意する。</p>
+<h2 id="トラップ">トラップ</h2>
+<p>トラップは外部要因の割り込みとは異なり、CPU内部から最高優先度(8)を持って実行される割り込みであり、システムコールや例外発生時にトラップがかかる。</p>
+<h1 id="第10章_アセンブラ”トラップ”ルーチン">第10章 アセンブラ”トラップ”ルーチン</h1>
+<h2 id="fuibyte(0841),_fuiword(0844)">fuibyte(0841), fuiword(0844)</h2>
+<p>fuiwordはgwordをサブルーチンコールし、PS, nofalutをスタックにpushする。次にmfpiで例外が発生した場合、512行目”trap; br7+0”がPC,PSにロードされ、trapをカーネルモードで実行する。fuiwordはカーネルモードでのみ呼ばれるため、このときモード遷移は起きていない。この時点で古いPS, PCはこの順番でカーネルスタックにpushされる。</p>
+<p>trapでは2word先にPSを保存する(<em>何のため?</em>)。スタックトップにあるgwordへの戻りアドレスであるPCをnofalut(=err)に書き換えて、そのままrttするとスタックは2word分popされ、errに飛ぶ。errではgwordでpushしておいたnofaltとPSを復帰させて、fuiwordへの戻りアドレスを空popにより飛ばし、fuiwordのcallerへ直接リターンする。</p>
+<h2 id="割り込み">割り込み</h2>
+<ul>
+<li>現モード = カーネルモード</li>
+<li>前モード = カーネルモードかユーザモード</li>
+<li>優先度 = 6</li>
+</ul>
+<h2 id="call(0776)">call(0776)</h2>
+<figure class="highlight asm"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="number">0570</span> kwlp:  jsr <span class="literal">r0</span>,<span class="keyword">call</span><span class="comment">; _clock</span></div></pre></td></tr></table></figure>
+
+<p>でr0にはjsr命令の次のワード(_clock)を指すアドレスが入り、割り込み処理ルーチンへの分岐は以下の命令で行われる。(このとき、(*r0)になっている理由がわからない。)</p>
+<figure class="highlight asm"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="number">0799</span> jsr  <span class="keyword">pc</span>,*(r0)+</div></pre></td></tr></table></figure>
+
+<p>ユーザモードでcallが呼ばれた場合、runrun &gt; 0であると優先度の高いプロセスが存在しているので、swtchを実行してコンテキストスイッチをする。swtchの呼び出しによりpcがスタックにpushされるので、swtchでコンテキストを切り替える前にsavuで保存される。swtchでは優先度の高いプロセスに切り替えられるが、やがてもとのプロセスが再起した場合に、スイッチ前にsavuしたスタックを復帰してretuしてreturnすることでswtchを呼び出す前のコンテキスト(そのカーネルプロセスの割り込み処理中)から再開する。</p>
+<h2 id="ユーザプログラムのトラップ">ユーザプログラムのトラップ</h2>
+<ul>
+<li>現モード = カーネルモード</li>
+<li>前モード = ユーザモード</li>
+<li>優先度 = 7</li>
+</ul>
+<p>割り込み処理(例えば0570行目のサブルーチンcallのコール)とは異なり、trap命令により034番地から直接0755行目のtrapに飛ぶため、スタック上にr0を積んでいない部分が大きな差であり、その他の処理ははcallとほぼ共通である。</p>
+<figure class="highlight asm"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="number">0756</span> <span class="keyword">mov</span>  PS,-<span class="number">4</span>(<span class="literal">sp</span>)</div></pre></td></tr></table></figure>
+
+<p>において、SPから2word先に格納しているのは、</p>
+<figure class="highlight asm"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="number">0762</span> jsr  <span class="literal">r0</span>,call1<span class="comment">; _trap</span></div><div class="line"><span class="number">0771</span> call1:</div><div class="line"><span class="number">0772</span> tst  -(<span class="literal">sp</span>)</div></pre></td></tr></table></figure>
+
+<p>の最初の命令でr0に_trap設定するとともに、古いr0をスタックに積むことでSPを1word先に進め、次のtstで最初のPSをスタックトップに含むように調整するため。</p>
+<h1 id="第11章_クロック割り込み">第11章 クロック割り込み</h1>
+<h2 id="clock(3725)">clock(3725)</h2>
+<p>toutは時間待ちしているプロセスを起こすための時間を管理しているが、1セットしかないため複数のプロセスが別々の時間で待つためにはどのように管理しているかを調べたい。(calloutのように複数のイベントの発生タイミングを管理しているわけではないらしい。おそらく起こされたときに、sleep時間が足りなかったら残りの時間がその時点でのtoutよりも多く必要だったらtoutを再設定してまた寝るのかもしれない。)</p>
+<h1 id="第12章_トラップとシステムコール">第12章 トラップとシステムコール</h1>
+<p>mainからnewprocで作られた子プロセスがinitにexecするコードでシステムコール呼び出しを考えてみる。以下はexecを実行するコード。(コメントに命令の番地を8進数で記載した。)</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">int</span>	icode[]</div><div class="line">{</div><div class="line">	<span class="number">0104413</span>,	<span class="comment">// 0000: sys exec; init; initp</span></div><div class="line">	<span class="number">0000014</span>,	<span class="comment">// 0002:</span></div><div class="line">	<span class="number">0000010</span>,	<span class="comment">// 0004:</span></div><div class="line">	<span class="number">0000777</span>,	<span class="comment">// 0006: br .</span></div><div class="line">	<span class="number">0000014</span>,	<span class="comment">// 0010: initp: init; 0</span></div><div class="line">	<span class="number">0000000</span>,	<span class="comment">// 0012:</span></div><div class="line">	<span class="number">0062457</span>,	<span class="comment">// 0014: init: &lt;/etc/init\0&gt;</span></div><div class="line">	<span class="number">0061564</span>,	<span class="comment">// 0016:</span></div><div class="line">	<span class="number">0064457</span>,	<span class="comment">// 0020:</span></div><div class="line">	<span class="number">0064556</span>,	<span class="comment">// 0022:</span></div><div class="line">	<span class="number">0000164</span>,	<span class="comment">// 0024:</span></div><div class="line">};</div></pre></td></tr></table></figure>
+
+<p>trap命令は下位5bitが0ではなく、execのシステムコール番号である013(11d)が埋め込まれているので、間接型trapではなく、Lions本の</p>
+<ul>
+<li>(b) trap命令に続くプログラム列の中に埋め込まれたワードの集合として。</li>
+</ul>
+<p>に該当する。以下の処理によりシステムコールに必要な引数をu.uargに代入していく。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">for</span>(i=<span class="number">0</span>; i&lt;callp-&gt;count; i++) {</div><div class="line">  u.u_arg[i] = fuiword(pc);</div><div class="line">  pc =+ <span class="number">2</span>;</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>ここで、fuiwordは引数で指定したアドレスを前モードの仮想アドレスと見なして現モードのスタックにプッシュするルーチンである。trapの前モードはユーザモードなので、pcは0002番地のアドレスを指している。(trap命令実行時にpcは次の命令を指していることに注意する。)</p>
+<p>したがって、trapにより以下の設定がなされる。</p>
+<ul>
+<li>システムコールはexec<ul>
+<li>0104413の下位5bitが013(11d)であるため</li>
+</ul>
+</li>
+<li>u.uarg[0]=014</li>
+<li>u.uarg[1]=010</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">while</span>(ap = fuword(u.u_arg[<span class="number">1</span>])) {</div><div class="line">  na++;</div><div class="line">  <span class="keyword">if</span>(ap == -<span class="number">1</span>)</div><div class="line">    <span class="keyword">goto</span> bad;</div><div class="line">  u.u_arg[<span class="number">1</span>] =+ <span class="number">2</span>;</div><div class="line">  <span class="keyword">for</span>(;;) {</div><div class="line">    c = fubyte(ap++);</div><div class="line">    <span class="keyword">if</span>(c == -<span class="number">1</span>)</div><div class="line">      <span class="keyword">goto</span> bad;</div><div class="line">    *cp++ = c;</div><div class="line">    nc++;</div><div class="line">    <span class="keyword">if</span>(nc &gt; <span class="number">510</span>) {</div><div class="line">      u.u_error = E2BIG;</div><div class="line">      <span class="keyword">goto</span> bad;</div><div class="line">    }</div><div class="line">    <span class="keyword">if</span>(c == <span class="number">0</span>)</div><div class="line">      <span class="keyword">break</span>;</div><div class="line">  }</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>次にexecシステムコールの中身を見ていく。上記は先ほどtrapで設定されたu.uargを使って、引数で与えられた文字列領域を辿りカーネルが管理するバッファ領域にコピーするコードである。最初のfuword(u.u_arg[1])により、apには010番地の値、すなわち、014が入る。続いて、内部forループのfubyte(ap++)により014番地の最初の文字’/‘(057)が取得できるので、これをcpが指しているバッファ領域に書き、’\0’の終端まで行う。これでwhileの1回目が完了する。</p>
+<p>続いてwhileの2回目でのfuword(u.u_arg[1])では、u.u_arg[1]が2増やされているため、012番地の値、0が帰る。これによりwhile文は終了する。</p>
+<p>以上をまとめると、trapにより設定されたu.u_argの第二引数であるu.u_arg[1]は実際の文字列引数へのポインタ配列の先頭要素を指すポインタにあたり、fuword, fubyteを使って2回参照することでユーザ空間からカーネル空間のバッファへと文字列の転記を行う。ポインタの配列の要素が0になると、そこが配列の最後の要素であると見なされる。この際、文字列は0終端であり、複数の文字列が存在しても詰めてバッファに格納されている。文字列の個数はnaで管理している。</p>
+<p>execの仕様はUPM(II)によると、</p>
+<ul>
+<li>sys exec; name; args</li>
+<li>name: &lt;..\0&gt;</li>
+<li>args: arg0; arg1; …; 0</li>
+<li>arg0: &lt;…\0&gt;</li>
+<li>arg1: &lt;…\0&gt;</li>
+</ul>
+<p>となっており、以上で確かめたように、第二引数であるargsはarg0, arg1, …という文字列へのポインタの配列であることがわかる。</p>
+<h2 id="a-out形式について">a.out形式について</h2>
+<p>次の4つのセクションからなる</p>
+<ol>
+<li>ヘッダ</li>
+<li>プログラムとデータ</li>
+<li>シンボルテーブル</li>
+<li>リロケーションビット</li>
+</ol>
+<p>3, 4はldに<code>-s</code>オプションをつけるか、stripした場合は空になる。</p>
+<ul>
+<li>テキストセグメントの開始位置は8word(16byte)目</li>
+<li>データセグメントの開始位置は8+sizeof(text) word目</li>
+<li>リロケーション情報の開始位置は8+sizeof(text)+sizeof(data) word目</li>
+</ul>
+<p>リロケーション情報がある場合</p>
+<ul>
+<li>シンボルテーブルの開始位置は8+(sizeof(text)+sizeof(data))*2 word目</li>
+</ul>
+<p>リロケーション情報がない場合</p>
+<ul>
+<li>シンボルテーブルの開始位置は8+(sizeof(text)+sizeof(data)) word目</li>
+</ul>
+<h4 id="ヘッダ(マジックナンバ)">ヘッダ(マジックナンバ)</h4>
+<p>以下、共通してテキストセグメントは0番地におかれる。</p>
+<ul>
+<li>407</li>
+</ul>
+<p>テキストセグメントは保護も共有もされない。データセグメントはテキストセグメントの直後から開始する。</p>
+<ul>
+<li>410</li>
+</ul>
+<p>テキストセグメントは保護され共有される。データセグメントはテキストセグメントの後の8Kbyte境界から開始する。</p>
+<ul>
+<li>411</li>
+</ul>
+<p>テキストセグメントは保護され共有される。テキストセグメントとデータセグメントは分離される。</p>
+<h2 id="execのテキスト&amp;データセグメントの初期化">execのテキスト&amp;データセグメントの初期化</h2>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">u.<span class="variable">u_base =</span> &u.u_arg[<span class="number">0</span>];</div><div class="line">u.<span class="variable">u_count =</span> <span class="number">8</span>;</div><div class="line">u.u_offset[<span class="number">1</span>] = <span class="number">0</span>;</div><div class="line">u.u_offset[<span class="number">0</span>] = <span class="number">0</span>;</div><div class="line">u.<span class="variable">u_segflg =</span> <span class="number">1</span>;</div><div class="line">readi(ip);</div></pre></td></tr></table></figure>
+
+<p>続いて、実行するa.outファイルのヘッダ8byteをu.u_arg[0]~u.u_arg[3]に読み込む。a.outフォーマットの仕様から、</p>
+<ul>
+<li>u.u_arg[0] = 0407/0410/0411のマジックナンバ</li>
+<li>u.u_arg[1] = テキストセグメントのサイズ</li>
+<li>u.u_arg[2] = データセグメントのサイズ</li>
+<li>u.u_arg[3] = bssセグメントのサイズ</li>
+</ul>
+<p>が格納される。以降はテキストセグメントとデータセグメントのサイズに応じて必要なメモリ領域を計算してexpand &amp; estaburする。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">estabur(<span class="number">0</span>, <span class="literal">ds</span>, <span class="number">0</span>, <span class="number">0</span>)<span class="comment">;</span></div><div class="line">u.u_base = <span class="number">0</span><span class="comment">;</span></div><div class="line">u.u_offset[<span class="number">1</span>] = <span class="number">020</span>+u.u_arg[<span class="number">1</span>]<span class="comment">;</span></div><div class="line">u.u_count = u.u_arg[<span class="number">2</span>]<span class="comment">;</span></div><div class="line">readi(<span class="literal">ip</span>)<span class="comment">;</span></div></pre></td></tr></table></figure>
+
+<p>これにより、a.outからテキストとデータセグメントを読み込み、ユーザ空間の0番地から格納する。</p>
+<h2 id="execのスタックセグメントの初期化">execのスタックセグメントの初期化</h2>
+<h3 id="suword(ap,_na)">suword(ap, na)</h3>
+<p>前モードの仮想ap番地に対して、naの値を転送する。この場合、apはexec後の新しいスタックセグメントのスタックトップを表し、naはexecに与えた引数の個数を表す。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">cp = bp-&gt;b_addr;        <span class="comment">// カーネルバッファ領域のアドレス(転送するデータの内容)</span></div><div class="line">ap = -nc - na*<span class="number">2</span> - <span class="number">4</span>;   <span class="comment">// スタックトップの仮想アドレス(高位アドレスなので負)</span></div><div class="line">u.u_ar0[<span class="type">R6</span>] = ap;       <span class="comment">// スタックトップをsp(R0)に設定</span></div><div class="line">suword(ap, na);         <span class="comment">// スタックトップに引数の個数naを設定(argcに相当)</span></div><div class="line"><span class="built_in">c</span> = -nc;                <span class="comment">// スタックボトムからnc byte分上位を指す</span></div><div class="line"><span class="keyword">while</span>(na--) {</div><div class="line">  suword(ap=+<span class="number">2</span>, <span class="built_in">c</span>);     <span class="comment">// ここで設定する値はargv[na]に相当</span></div><div class="line">  <span class="keyword">do</span></div><div class="line">    subyte(<span class="built_in">c</span>++, *cp);</div><div class="line">  <span class="keyword">while</span>(*cp++);</div><div class="line">}</div><div class="line">suword(ap+<span class="number">2</span>, -<span class="number">1</span>);       <span class="comment">// argv[na]はスタックボトムを指す(無効を示すため)</span></div></pre></td></tr></table></figure>
+
+<p>このコードより、スタックは以下のように設定される。</p>
+<ul>
+<li>argc</li>
+<li>argv[0], …, argv[na-1]</li>
+<li>argv[0]の文字列, …, argv[na-1]の文字列</li>
+</ul>
+<h1 id="fork">fork</h1>
+<figure class="highlight asm"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">/ C library -- fork</div><div class="line"></div><div class="line">/ pid = fork()<span class="comment">;</span></div><div class="line">/</div><div class="line">/ pid == <span class="number">0</span> <span class="keyword">in</span> child process<span class="comment">; pid == -1 means error return</span></div><div class="line">/ <span class="keyword">in</span> child, parents id is <span class="keyword">in</span> par_uid if needed</div><div class="line"></div><div class="line"><span class="string">.globl</span>	_fork, cerror, _par_uid</div><div class="line"><span class="label"></span></div><div class="line">_fork:</div><div class="line">	<span class="keyword">mov</span>	<span class="literal">r5</span>,-(<span class="literal">sp</span>)</div><div class="line">	<span class="keyword">mov</span>	<span class="literal">sp</span>,<span class="literal">r5</span></div><div class="line">	sys	fork</div><div class="line">		br 1f</div><div class="line">	bec	2f</div><div class="line">	<span class="keyword">jmp</span>	cerror</div><div class="line"><span class="number">1</span>:</div><div class="line">	<span class="keyword">mov</span>	<span class="literal">r0</span>,_par_uid</div><div class="line">	clr	<span class="literal">r0</span></div><div class="line"><span class="number">2</span>:</div><div class="line">	<span class="keyword">mov</span>	(<span class="literal">sp</span>)+,<span class="literal">r5</span></div><div class="line">	rts	pc</div><div class="line"><span class="string">.bss</span></div><div class="line"><span class="label">_par_uid:</span> .=.+<span class="number">2</span></div></pre></td></tr></table></figure>
+
+<p>sys forkの直後に親子が実行する命令が同じであると親子の区別がつかなくなってしまうため、forkシステムコールは親プロセスの戻りアドレスを1word分進める。そのため、親プロセスはsys forkの次はbec 2fを実行することになる。(子プロセスはsys forkから戻るとbr 1fを実行する。)</p>
+<h1 id="sbreak">sbreak</h1>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div></pre></td><td class="code"><pre><div class="line">sbreak()</div><div class="line">{</div><div class="line">	<span class="keyword">register</span> a, n, d;</div><div class="line">	<span class="keyword">int</span> i;</div><div class="line"></div><div class="line">	<span class="comment">/*</span></div><div class="line">	 * set n to new data size</div><div class="line">	 * set d to new-old</div><div class="line">	 * set n to new total size</div><div class="line">	 */</div><div class="line"></div><div class="line">	n = (((u.u_arg[<span class="number">0</span>]+<span class="number">63</span>)&gt;&gt;<span class="number">6</span>) & <span class="number">01777</span>);</div><div class="line">	<span class="keyword">if</span>(!u.u_sep)</div><div class="line">		n =- nseg(u.u_tsize) * <span class="number">128</span>;</div><div class="line">	<span class="keyword">if</span>(n &lt; <span class="number">0</span>)</div><div class="line">		n = <span class="number">0</span>;</div><div class="line">	d = n - u.u_dsize;</div><div class="line">	n =+ USIZE+u.u_ssize;</div><div class="line">	<span class="keyword">if</span>(estabur(u.u_tsize, u.u_dsize+d, u.u_ssize, u.u_sep))</div><div class="line">		<span class="keyword">return</span>;</div><div class="line">	u.u_dsize =+ d;</div><div class="line">	<span class="keyword">if</span>(d &gt; <span class="number">0</span>)</div><div class="line">		<span class="keyword">goto</span> bigger;</div><div class="line">	a = u.u_procp-&gt;p_addr + n - u.u_ssize;</div><div class="line">	i = n;</div><div class="line">	n = u.u_ssize;</div><div class="line">	<span class="keyword">while</span>(n--) {</div><div class="line">		copyseg(a-d, a);</div><div class="line">		a++;</div><div class="line">	}</div><div class="line">	expand(i);</div><div class="line">	<span class="keyword">return</span>;</div><div class="line"></div><div class="line">bigger:</div><div class="line">	expand(n);</div><div class="line">	a = u.u_procp-&gt;p_addr + n;</div><div class="line">	n = u.u_ssize;</div><div class="line">	<span class="keyword">while</span>(n--) {</div><div class="line">		a--;</div><div class="line">		copyseg(a-d, a);</div><div class="line">	}</div><div class="line">	<span class="keyword">while</span>(d--)</div><div class="line">		clearseg(--a);</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>nはu.u_arg[0]で指定したbyte数を1 blockを32 word(64 byte)とするブロック数に変換したものである。u.u_tsizeはblock数でテキストセグメントのサイズを表している。nsegは引数にとったblock数を1セグメントを4K word(8KB)とするセグメント数に変換する。u.u_tsizeをnseg(u.u_tsize)*128でテキストセグメントを8KB境界に揃えたblock数に変換した上で、nから減算する。これはu.u_sep=0の場合、テキストとデータが分離されていないので、nからテキストセグメント分を除くことで、新しいデータセグメントのblock数を算出しているためである。</p>
+<p>また、dは元のデータセグメントからの増減block数を表す。(増加する場合は正、減少する場合は負)</p>
+<h2 id="データセグメントが縮小する場合(d_&lt;=_0)">データセグメントが縮小する場合(d &lt;= 0)</h2>
+<p>copyseg(a-d, a)により元のスタックセグメントの位置(a-d)から縮小後のスタックセグメントの位置(a)に対してスタックのコピーが行われる。この時点では同じメモリ領域内でコピーが行われているだけであり、確保したメモリ領域に変更はないことに注意する。最後に、expand(i)を実行してはじめて不要な領域がmfreeで解放されてメモリの縮小が完了する。</p>
+<h2 id="データセグメントが拡大する場合(d_&gt;_0)">データセグメントが拡大する場合(d &gt; 0)</h2>
+<p>最初にexpand(n)により拡張後の領域を確保する。expandでは新しい領域に対して丸ごとコピーが行われるだけなので、スタックセグメントの位置の調整は呼び出し側で行う必要がある。そこで、aを転送先のアドレス、a-dを転送元のアドレスとしてcopyseg(a-d, a)によりスタック領域をコピーする。最後に、clearseg(—a)により、データセグメントの増加した領域のみを0クリアする。</p>
+<h1 id="13章_ソフトウェア割り込み">13章 ソフトウェア割り込み</h1>
+<h1 id="16章_RKディスクドライバ">16章 RKディスクドライバ</h1>
+<h2 id="devstart">devstart</h2>
+<p>rbp-&gt;xmemは拡張(extended)メモリアドレスを示し、PDP11-40/45では物理アドレスの拡張部にあたる上位2bit(bit17-16)が格納されている。</p>
+<h1 id="18章_ファイルのアクセスと制御">18章 ファイルのアクセスと制御</h1>
+<h2 id="iomove(bp,_o,_an,_flag)">iomove(bp, o, an, flag)</h2>
+<ul>
+<li>bp バッファ領域へのポインタ</li>
+<li>o バッファ内オフセット</li>
+<li>an 転送バイト数</li>
+<li>flag read/write指定フラグ</li>
+</ul>
+<p>iomoveはbp-&gt;b_addr[o]で与えられるバッファbpのアドレスb_addr[o]とu_baseとの間でデータを転送する。転送する方向はflagで指定され、flag=0の場合、bp-&gt;b_addr[o]からu_baseの方向であり、flag=1の場合、u_baseからbp-&gt;b_addr[0]の方向を意味する。また、u_baseが表すメモリ空間はu_segflgで指定され、u_segflg=0の場合、ユーザ空間を表し、u_segflg=1の場合、カーネル空間を表す。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line">iomove(bp, o, an, flag)</div><div class="line"><span class="keyword">struct</span> buf *bp;</div><div class="line">{</div><div class="line">	<span class="keyword">register</span> <span class="keyword">char</span> *cp;</div><div class="line">	<span class="keyword">register</span> <span class="keyword">int</span> n, t;</div><div class="line"></div><div class="line">	n = an;</div><div class="line">	cp = bp-&gt;b_addr + o;</div><div class="line">	<span class="keyword">if</span>(u.u_segflg==<span class="number">0</span> && ((n | cp | u.u_base)&<span class="number">01</span>)==<span class="number">0</span>) {</div><div class="line">		<span class="keyword">if</span> (flag==B_WRITE)</div><div class="line">			cp = copyin(u.u_base, cp, n);</div><div class="line">		<span class="keyword">else</span></div><div class="line">			cp = copyout(cp, u.u_base, n);</div><div class="line">		<span class="keyword">if</span> (cp) {</div><div class="line">			u.u_error = EFAULT;</div><div class="line">			<span class="keyword">return</span>;</div><div class="line">		}</div><div class="line">		u.u_base =+ n;</div><div class="line">		dpadd(u.u_offset, n);</div><div class="line">		u.u_count =- n;</div><div class="line">		<span class="keyword">return</span>;</div><div class="line">	}</div><div class="line">	<span class="keyword">if</span> (flag==B_WRITE) {</div><div class="line">		<span class="keyword">while</span>(n--) {</div><div class="line">			<span class="keyword">if</span> ((t = cpass()) &lt; <span class="number">0</span>)</div><div class="line">				<span class="keyword">return</span>;</div><div class="line">			*cp++ = t;</div><div class="line">		}</div><div class="line">	} <span class="keyword">else</span></div><div class="line">		<span class="keyword">while</span> (n--)</div><div class="line">			<span class="keyword">if</span>(passc(*cp++) &lt; <span class="number">0</span>)</div><div class="line">				<span class="keyword">return</span>;</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<h2 id="copyin(u-u_base,_cp,_n)">copyin(u.u_base, cp, n)</h2>
+<p>u.u_baseで指定されるユーザ空間のアドレスから、cpで指定されるカーネル空間のバッファ内アドレスに対してn byte転送する。</p>
+<h2 id="copyout(cp,_u-u_base,_n)">copyout(cp, u.u_base, n)</h2>
+<p>cpで指定されるカーネル空間のバッファ内アドレスから、u.u_baseで指定されるユーザ空間のアドレスに対してn byte転送する。</p>
+<h2 id="passc(c)">passc(c)</h2>
+<p>u_baseで指定されたアドレスにcを転送する。u_segflgが0の場合、u_baseはユーザ空間のアドレスとして扱われ、u_segflgが1の場合、カーネル空間のアドレスとして扱われる。その際、u_baseとu_offsetはインクリメントされ、u_countはデクリメントされる。(以下のcpassも同様)</p>
+<p>ユーザからのread要求に対して、カーネルのバッファ領域からユーザが指定するアドレスに対してデータを転送する処理に利用される。</p>
+<h2 id="cpass()">cpass()</h2>
+<p>u_baseで指定されたアドレスから1byte取得して返す。</p>
+<p>ユーザからのwrite要求に対して、ユーザが指定するアドレスからデータを取得し、カーネルのバッファ領域に転送する処理に利用される。</p>
+<h2 id="readiからの呼び出し">readiからの呼び出し</h2>
+<p>iomove(bp, on, n, B_READ);</p>
+<p>bp = bread(デバイス番号, ブロック番号);<br>on = ブロック内オフセット<br>n = 転送バイト数<br>B_READ = 読み出し</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://tanakahx.github.io/blog/2015/05/03/unix-v6/" data-id="vwkwzfh7xj5q371e" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/UNIX/">UNIX</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/blog/2015/04/05/cl-launch/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">cl-launch</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          
+            <aside id="sidebar">
+  
+    <div class="widget-wrap">
+    <h3 class="widget-title">About</h3>
+    <div class="widget about">
+        <ul>
+            <li><strong>Hiroyuki Tanaka</strong>
+                
+                    (@<a href="http://www.twitter.com/tanakahx">tanakahx</a>)
+                
+            </li>
+            
+                <li>My GitHub profile page is <a href="http://github.com/tanakahx">http://github.com/tanakahx</a></li>
+            
+        </ul>
+    </div>
+</div>
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recents</h3>
+    <div class="widget recents">
+      <ul>
+        
+          <li>
+            <a href="/blog/2015/05/03/unix-v6/">UNIX V6 memo</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2015/04/05/cl-launch/">cl-launch</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2015/03/07/generating-bingo-card-problem/">ビンゴカード作成問題 (Common Lisp)</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2015/03/01/let-over-lambda/">Let Over Lambda</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2015/02/02/matrix/">行列積</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/">Android</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Blog/">Blog</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Emacs/">Emacs</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Git/">Git</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/">JavaScript</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Lisp/">Lisp</a><span class="tag-list-count">16</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Python/">Python</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UNIX/">UNIX</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/V8/">V8</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/09/">September 2014</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/08/">August 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/07/">July 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/06/">June 2014</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">May 2014</a><span class="archive-list-count">12</span></li></ul>
+    </div>
+  </div>
+
+  
+</aside>
+          
+        
+      </div>
+      <div id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      <a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc/4.0/88x31.png" /></a></br>
+      &copy; 2020 Hiroyuki Tanaka<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</div>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css" type="text/css">
+
+  <script src="/fancybox/jquery.fancybox.pack.js" type="text/javascript"></script>
+
+
+
+<script src="/js/script.js" type="text/javascript"></script>
+
+
+  </div>
+</body>
+</html>
